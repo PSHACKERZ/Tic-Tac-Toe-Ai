@@ -41,13 +41,11 @@ const TicTacToe = () => {
   const [playerId, setPlayerId] = useState('');
   const [gameStatus, setGameStatus] = useState('waiting');
   const [errorMessage, setErrorMessage] = useState('');
-  const [opponentDisconnected, setOpponentDisconnected] = useState(false);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [hasGameStarted, setHasGameStarted] = useState(false);
   const [showDisconnectMessage, setShowDisconnectMessage] = useState(false);
-  const [showThemePreview, setShowThemePreview] = useState(false);
   const [isBgMusicOn, setIsBgMusicOn] = useState(true);
   const [isSoundEffectsOn, setSoundEffectsOn] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
@@ -549,7 +547,7 @@ const TicTacToe = () => {
   };
 
   // AI Move Strategies
-  const findWinningMove = (board, symbol, oppSymbol) => {
+  const findWinningMove = useCallback((board, symbol, oppSymbol) => {
     for (let i = 0; i < board.length; i++) {
       if (board[i] === null) {
         const testBoard = [...board];
@@ -558,11 +556,11 @@ const TicTacToe = () => {
       }
     }
     return null;
-  };
+  }, []);
 
-  const findBlockingMove = (board, symbol, oppSymbol) => {
+  const findBlockingMove = useCallback((board, symbol, oppSymbol) => {
     return findWinningMove(board, oppSymbol, symbol);
-  };
+  }, [findWinningMove]);
 
   const findRandomMove = (board) => {
     const emptySquares = board.reduce((acc, square, index) => 
@@ -571,28 +569,7 @@ const TicTacToe = () => {
   };
 
   // Minimax Algorithm for Hard Difficulty
-  const minimaxMove = (board, symbol) => {
-    const emptySquares = board.reduce((acc, square, index) => 
-      square === null ? [...acc, index] : acc, []);
-
-    let bestScore = -Infinity;
-    let bestMove = null;
-
-    emptySquares.forEach(index => {
-      const testBoard = [...board];
-      testBoard[index] = symbol;
-      const score = minimax(testBoard, 0, false, symbol);
-      
-      if (score > bestScore) {
-        bestScore = score;
-        bestMove = index;
-      }
-    });
-
-    return bestMove;
-  };
-
-  const minimax = (board, depth, isMaximizing, symbol) => {
+  const minimax = useCallback((board, depth, isMaximizing, symbol) => {
     const oppSymbol = symbol === 'X' ? 'O' : 'X';
     const result = calculateWinner(board);
 
@@ -626,7 +603,7 @@ const TicTacToe = () => {
       }
       return bestScore;
     }
-  };
+  }, []);
 
   // AI Move Selection
   const aiMove = useCallback((board, currentDifficulty) => {
@@ -710,6 +687,11 @@ const TicTacToe = () => {
         }
         move = bestMove;
         break;
+
+      default:
+        // Fallback to medium difficulty
+        move = findRandomMove(board);
+        break;
     }
 
     if (move === null) {
@@ -719,7 +701,14 @@ const TicTacToe = () => {
     }
 
     return move;
-  }, [playSound, aiSymbol, playerSymbol]);
+  }, [
+    playSound, 
+    aiSymbol, 
+    playerSymbol, 
+    findBlockingMove, 
+    findWinningMove, 
+    minimax // Add missing dependencies
+  ]);
 
   // Add helper functions for medium difficulty
   const findCenterMove = (board) => {
@@ -1138,10 +1127,9 @@ const TicTacToe = () => {
 
   // Game Board Render
   const renderGameBoard = () => {
-    const currentTheme = themes[theme];
     return (
-      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${currentTheme.bgGradient} p-4`}>
-        <div className={`${currentTheme.cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 w-full max-w-md`}>
+      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${themes[theme].bgGradient} p-4`}>
+        <div className={`${themes[theme].cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 w-full max-w-md`}>
           {/* Add back button for online mode */}
           {gameMode === 'online' && (
             <div className="mb-4">
@@ -1165,11 +1153,11 @@ const TicTacToe = () => {
           {/* Score display */}
           <div className="flex justify-between w-full mb-4 sm:mb-6">
             <div className="text-center flex-1">
-              <h3 className={`text-base sm:text-xl font-bold ${currentTheme.textColors.playerX}`}>Player X</h3>
+              <h3 className={`text-base sm:text-xl font-bold ${themes[theme].textColors.playerX}`}>Player X</h3>
               <p className="text-xl sm:text-2xl font-extrabold">{score.playerX}</p>
             </div>
             <div className="text-center flex-1">
-              <h3 className={`text-base sm:text-xl font-bold ${currentTheme.textColors.playerO}`}>Player O</h3>
+              <h3 className={`text-base sm:text-xl font-bold ${themes[theme].textColors.playerO}`}>Player O</h3>
               <p className="text-xl sm:text-2xl font-extrabold">{score.playerO}</p>
             </div>
             <div className="text-center flex-1">
@@ -1198,37 +1186,37 @@ const TicTacToe = () => {
           {/* Game status */}
           <div className="mb-4 sm:mb-6 text-center">
             {winner === 'draw' ? (
-              <h2 className={`text-2xl sm:text-3xl font-bold ${currentTheme.textColors.draw}`}>
+              <h2 className={`text-2xl sm:text-3xl font-bold ${themes[theme].textColors.draw}`}>
                 Draw!
               </h2>
             ) : winner ? (
-              <h2 className={`text-2xl sm:text-3xl font-bold ${currentTheme.textColors.playerX} ${!isMobile && 'animate-pulse'}`}>
+              <h2 className={`text-2xl sm:text-3xl font-bold ${themes[theme].textColors.playerX} ${!isMobile && 'animate-pulse'}`}>
                 Winner: {winner}!
               </h2>
             ) : (
               <div className="space-y-2">
-                <h2 className={`text-xl sm:text-2xl ${currentTheme.textColors.nextPlayer}`}>
+                <h2 className={`text-xl sm:text-2xl ${themes[theme].textColors.nextPlayer}`}>
                   {gameMode === 'playing' ? (
                     // AI Game Mode
                     currentPlayer === aiSymbol ? (
-                      <span className={currentTheme.textColors.playerO}>AI's Turn</span>
+                      <span className={themes[theme].textColors.playerO}>AI's Turn</span>
                     ) : (
-                      <span className={currentTheme.textColors.playerX}>Your Turn</span>
+                      <span className={themes[theme].textColors.playerX}>Your Turn</span>
                     )
                   ) : gameMode === 'online' ? (
                     // Online Game Mode
                     currentPlayer === playerSymbol ? (
-                      <span className={currentPlayer === 'X' ? currentTheme.textColors.playerX : currentTheme.textColors.playerO}>
+                      <span className={currentPlayer === 'X' ? themes[theme].textColors.playerX : themes[theme].textColors.playerO}>
                         Your Turn ({gameTag || 'You'})
                       </span>
                     ) : (
-                      <span className={currentPlayer === 'X' ? currentTheme.textColors.playerX : currentTheme.textColors.playerO}>
+                      <span className={currentPlayer === 'X' ? themes[theme].textColors.playerX : themes[theme].textColors.playerO}>
                         Opponent's Turn
                       </span>
                     )
                   ) : (
                     // Local PvP Mode
-                    <span className={currentPlayer === 'X' ? currentTheme.textColors.playerX : currentTheme.textColors.playerO}>
+                    <span className={currentPlayer === 'X' ? themes[theme].textColors.playerX : themes[theme].textColors.playerO}>
                       Player {currentPlayer}'s Turn
                     </span>
                   )}
@@ -1418,131 +1406,128 @@ const TicTacToe = () => {
   }, [gameMode, sounds, isBgMusicOn]);
   
   const renderOnlineMenu = () => {
-    const currentTheme = themes[theme];
     return (
-      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${currentTheme.menuBg} p-4`}>
-        <div className={`${currentTheme.cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 text-center w-full max-w-md`}>
-          {/* Add email display */}
-          {session?.user && (
-            <div className="mb-6 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500">Logged in as:</p>
-              <p className="text-gray-700 font-medium truncate" title={session.user.email}>
-                {session.user.email}
-              </p>
-            </div>
-          )}
+      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${themes[theme].menuBg} p-4`}>
+        {/* Add email display */}
+        {session?.user && (
+          <div className="mb-6 p-3 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-500">Logged in as:</p>
+            <p className="text-gray-700 font-medium truncate" title={session.user.email}>
+              {session.user.email}
+            </p>
+          </div>
+        )}
 
-          <h2 className="text-3xl sm:text-5xl font-extrabold mb-6 sm:mb-10 text-gray-800 flex items-center justify-center">
-            <Globe className="mr-2 sm:mr-4 text-green-600 animate-spin w-10 h-10 sm:w-14 sm:h-14" />
-            Online Play
-          </h2>
-          
-          {/* Create Room Button */}
+        <h2 className="text-3xl sm:text-5xl font-extrabold mb-6 sm:mb-10 text-gray-800 flex items-center justify-center">
+          <Globe className="mr-2 sm:mr-4 text-green-600 animate-spin w-10 h-10 sm:w-14 sm:h-14" />
+          Online Play
+        </h2>
+        
+        {/* Create Room Button */}
+        <button 
+          onClick={() => {
+            playSound('click');
+            createGameRoom();
+          }}
+          className={`
+            w-full mb-6
+            bg-gradient-to-r from-violet-500 to-purple-600 
+            text-white px-6 py-4 rounded-xl 
+            text-xl font-bold
+            hover:from-violet-600 hover:to-purple-700 transition-all
+            flex items-center justify-center
+            shadow-xl hover:shadow-2xl
+            group
+          `}
+        >
+          <Trophy className={`mr-2 w-6 h-6 group-hover:animate-bounce`} />
+          Create New Room
+        </button>
+
+        {/* Join Room Form */}
+        <div className="mb-6">
+          <div className="relative">
+            <input
+              type="text"
+              value={roomCode}
+              onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+              placeholder="Enter Room Code"
+              className="
+                w-full px-4 py-3
+                border-2 border-gray-300 
+                rounded-xl text-lg
+                focus:outline-none 
+                focus:border-green-500
+                transition-colors
+                mb-4
+              "
+              maxLength={6}
+            />
+            {roomCode && (
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(roomCode);
+                  playSound('click');
+                }}
+                className="
+                  absolute right-3 top-1/2 -translate-y-1/2
+                  text-gray-500 hover:text-green-600
+                  transition-colors
+                "
+                title="Copy Room Code"
+              >
+                <Copy className="w-5 h-5" />
+              </button>
+            )}
+          </div>
           <button 
             onClick={() => {
               playSound('click');
-              createGameRoom();
+              joinGameRoom(roomCode);
             }}
             className={`
-              w-full mb-6
-              bg-gradient-to-r from-violet-500 to-purple-600 
+              w-full
+              bg-gradient-to-r from-indigo-500 to-blue-600
               text-white px-6 py-4 rounded-xl 
               text-xl font-bold
-              hover:from-violet-600 hover:to-purple-700 transition-all
+              ${!isMobile && 'hover:from-indigo-600 hover:to-blue-700 transition-all'}
               flex items-center justify-center
-              shadow-xl hover:shadow-2xl
+              shadow-xl ${!isMobile && 'hover:shadow-2xl'}
               group
             `}
           >
-            <Trophy className={`mr-2 w-6 h-6 group-hover:animate-bounce`} />
-            Create New Room
-          </button>
-
-          {/* Join Room Form */}
-          <div className="mb-6">
-            <div className="relative">
-              <input
-                type="text"
-                value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-                placeholder="Enter Room Code"
-                className="
-                  w-full px-4 py-3
-                  border-2 border-gray-300 
-                  rounded-xl text-lg
-                  focus:outline-none 
-                  focus:border-green-500
-                  transition-colors
-                  mb-4
-                "
-                maxLength={6}
-              />
-              {roomCode && (
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(roomCode);
-                    playSound('click');
-                  }}
-                  className="
-                    absolute right-3 top-1/2 -translate-y-1/2
-                    text-gray-500 hover:text-green-600
-                    transition-colors
-                  "
-                  title="Copy Room Code"
-                >
-                  <Copy className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-            <button 
-              onClick={() => {
-                playSound('click');
-                joinGameRoom(roomCode);
-              }}
-              className={`
-                w-full
-                bg-gradient-to-r from-indigo-500 to-blue-600
-                text-white px-6 py-4 rounded-xl 
-                text-xl font-bold
-                ${!isMobile && 'hover:from-indigo-600 hover:to-blue-700 transition-all'}
-                flex items-center justify-center
-                shadow-xl ${!isMobile && 'hover:shadow-2xl'}
-                group
-              `}
-            >
-              <Users className={`mr-2 w-6 h-6 ${!isMobile && 'group-hover:animate-pulse'}`} />
-              Join Room
-            </button>
-          </div>
-
-          {/* Error Message */}
-          {errorMessage && (
-            <div className="mb-6 text-red-500 bg-red-100 p-3 rounded-lg">
-              {errorMessage}
-            </div>
-          )}
-
-          {/* Only Back Button */}
-          <button 
-            onClick={() => {
-              playSound('click');
-              leaveOnlineGame();
-            }}
-            className={`
-              w-full mt-4
-              bg-gradient-to-r from-slate-500 to-slate-600
-              text-white px-4 py-3 rounded-xl 
-              text-lg font-bold
-              ${!isMobile && 'hover:from-slate-600 hover:to-slate-700 transition-all'}
-              flex items-center justify-center
-              shadow-xl hover:shadow-2xl
-              group
-            `}
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Menu
+            <Users className={`mr-2 w-6 h-6 ${!isMobile && 'group-hover:animate-pulse'}`} />
+            Join Room
           </button>
         </div>
+
+        {/* Error Message */}
+        {errorMessage && (
+          <div className="mb-6 text-red-500 bg-red-100 p-3 rounded-lg">
+            {errorMessage}
+          </div>
+        )}
+
+        {/* Only Back Button */}
+        <button 
+          onClick={() => {
+            playSound('click');
+            leaveOnlineGame();
+          }}
+          className={`
+            w-full mt-4
+            bg-gradient-to-r from-slate-500 to-slate-600
+            text-white px-4 py-3 rounded-xl 
+            text-lg font-bold
+            ${!isMobile && 'hover:from-slate-600 hover:to-slate-700 transition-all'}
+            flex items-center justify-center
+            shadow-xl hover:shadow-2xl
+            group
+          `}
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back to Menu
+        </button>
       </div>
     );
   };
@@ -1601,11 +1586,10 @@ const TicTacToe = () => {
           const playerCount = Object.keys(state).length;
           
           if (playerCount < 2 && hasGameStarted) {
-            setOpponentDisconnected(true);
+            setShowDisconnectMessage(true);
             if (disconnectTimer) clearTimeout(disconnectTimer);
             disconnectTimer = setTimeout(() => setShowDisconnectMessage(true), 5000);
           } else {
-            setOpponentDisconnected(false);
             setShowDisconnectMessage(false);
             if (disconnectTimer) clearTimeout(disconnectTimer);
           }
@@ -1672,7 +1656,7 @@ const TicTacToe = () => {
   };
 
   // Reset hasGameStarted when leaving game or starting new game
-  const handleLeaveGame = async () => {
+  const handleLeaveGame = useCallback(async () => {
     try {
       playSound('click');
       
@@ -1686,7 +1670,6 @@ const TicTacToe = () => {
 
       if (error) throw error;
       
-      // Reset all states
       setGameMode('mode-select');
       setErrorMessage('');
       setRoomCode('');
@@ -1697,9 +1680,8 @@ const TicTacToe = () => {
       setMessages([]);
       setGameStatus('waiting');
       setScore({ playerX: 0, playerO: 0, draws: 0 });
-      setHasGameStarted(false); // Reset hasGameStarted
+      setHasGameStarted(false);
       
-      // Stop any playing sounds
       Object.values(sounds).forEach(sound => {
         sound.stop();
       });
@@ -1710,18 +1692,17 @@ const TicTacToe = () => {
       console.error('Error leaving game:', error);
       handleError(error, 'Failed to leave game. Please try again.');
     }
-  };
+  }, [playSound, playerSymbol, roomCode, sounds, handleError]);
 
   // Add Settings Menu component
   const renderSettings = () => {
-    const currentTheme = themes[theme];
     const isDarkTheme = theme === 'dark';
     
     return (
-      <div className={`fixed inset-0 bg-gradient-to-br ${currentTheme.bgGradient} flex items-center justify-center p-4`}>
+      <div className={`fixed inset-0 bg-gradient-to-br ${themes[theme].bgGradient} flex items-center justify-center p-4`}>
         {showGameTagModal && renderGameTagModal()}
         
-        <div className={`${currentTheme.cardBg} rounded-xl shadow-2xl p-6 max-w-md w-full`}>
+        <div className={`${themes[theme].cardBg} rounded-xl shadow-2xl p-6 max-w-md w-full`}>
           <h2 className={`text-2xl font-bold mb-6 ${isDarkTheme ? 'text-white' : 'text-gray-800'}`}>Settings</h2>
 
           {/* User Profile Section */}
@@ -1876,13 +1857,12 @@ const TicTacToe = () => {
 
   // Add the Auth UI modal component
   const renderAuthModal = () => {
-    const currentTheme = themes[theme];
     const isDarkTheme = theme === 'dark';
     
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className={`
-          ${currentTheme.cardBg} 
+          ${themes[theme].cardBg} 
           rounded-xl shadow-2xl 
           p-6 max-w-md w-full 
           max-h-[90vh] overflow-y-auto
@@ -2114,33 +2094,11 @@ const TicTacToe = () => {
 
   // Add the confirmation dialog component
   const renderLeaveConfirmation = () => {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
-          <h3 className="text-xl font-bold mb-4">Leave Game?</h3>
-          <p className="text-gray-600 mb-6">Are you sure you want to leave the game? Your opponent will win by default.</p>
-          <div className="flex space-x-4">
-            <button
-              onClick={() => {
-                playSound('click');
-                setShowLeaveConfirmation(false);
-              }}
-              className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => {
-                playSound('click');
-                setShowLeaveConfirmation(false);
-                leaveOnlineGame();
-              }}
-              className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-            >
-              Leave Game
-            </button>
-          </div>
-        </div>
+    return showLeaveConfirmation && (
+      <div>
+        <button onClick={handleLeaveGame}>
+          Confirm Leave
+        </button>
       </div>
     );
   };
@@ -2286,7 +2244,7 @@ const TicTacToe = () => {
       {showSettings ? renderSettings() : (
         <>
           {showAuth && renderAuthModal()}
-          {showLeaveConfirmation && renderLeaveConfirmation()}
+          {renderLeaveConfirmation()}
           {showGameTagModal && renderGameTagModal()}
           {gameMode === 'mode-select' && renderModeSelection()}
           {gameMode === 'online-menu' && renderOnlineMenu()}
