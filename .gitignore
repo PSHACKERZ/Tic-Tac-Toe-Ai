@@ -1,0 +1,83 @@
+<<<<<<< HEAD
+# Dependencies
+node_modules/
+/vendor/
+/.pnp
+.pnp.js
+
+# Testing
+/coverage/
+.nyc_output/
+
+# Production
+/build/
+/dist/
+/out/
+
+# Environment variables
+.env
+=======
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+>>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+<<<<<<< HEAD
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+=======
+>>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+<<<<<<< HEAD
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Cache directories
+.cache/
+.next/
+.ssh/SSH_KEYS.pub
+.gitignore
+=======
+# Local Netlify folder
+.netlify
+>>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
