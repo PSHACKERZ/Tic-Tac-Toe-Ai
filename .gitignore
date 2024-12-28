@@ -1,32 +1,55 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
+# Dependencies
+node_modules/
+/vendor/
 /.pnp
 .pnp.js
 
-# testing
-/coverage
+# Testing
+/coverage/
+.nyc_output/
 
-# production
-/build
+# Production
+/build/
+/dist/
+/out/
 
-# misc
-.DS_Store
+# Environment variables
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Local Netlify folder
-.netlify
+# Optional npm cache directory
+.npm
 
-# Environment Variables
-.env
+# Optional eslint cache
+.eslintcache
 
-# Sound files (if they're large and should be hosted elsewhere)
-/public/sounds/
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Cache directories
+.cache/
+.next/
