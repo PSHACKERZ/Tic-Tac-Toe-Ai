@@ -4,6 +4,7 @@ A feature-rich, modern implementation of the classic Tic Tac Toe game built with
 
 [![Play Now](https://img.shields.io/badge/Play%20Now-Live%20Demo-blue)](https://tictactoeaibyps.netlify.app/)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/00aa4048-7c73-4012-8dfe-232ae5992151/deploy-status)](https://app.netlify.com/sites/tictactoeaibyps/deploys)
 
 [![Tic Tac Toe Game](https://i.postimg.cc/rmx99Dsq/Screenshot-2024-12-29-020344.png)](https://postimg.cc/qhBnJM2F)
 
