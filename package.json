@@ -2,9 +2,7 @@
   "name": "tic-tac-toe",
   "version": "0.1.0",
   "private": true,
-  "homepage": "./",
   "dependencies": {
-<<<<<<< HEAD
     "@supabase/auth-ui-react": "^0.4.7",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/supabase-js": "^2.47.10",
@@ -19,16 +17,6 @@
     "react-scripts": "5.0.1",
     "tailwindcss": "^3.4.1",
     "uuid": "^11.0.3",
-=======
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "lucide-react": "^0.294.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
-    "tailwindcss": "^3.4.1",
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
     "web-vitals": "^2.1.4"
   },
   "scripts": {

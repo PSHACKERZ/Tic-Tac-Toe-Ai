@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   Users, 
@@ -13,7 +12,7 @@ import {
   Globe, 
   Copy, 
   Music, 
-  Volume2,  
+  Volume2, 
   Settings, 
   ArrowLeft 
 } from 'lucide-react';
@@ -21,10 +20,6 @@ import { Howl } from 'howler';
 import { supabase } from './lib/supabaseClient';
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
-=======
-import React, { useState, useEffect } from 'react';
-import { X, Circle, Gamepad2, RefreshCw, Settings, Award, Trophy, Palette } from 'lucide-react';
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
 
 const TicTacToe = () => {
   // State Variables
@@ -42,18 +37,15 @@ const TicTacToe = () => {
   });
   const [winningLine, setWinningLine] = useState(null);
   const [theme, setTheme] = useState('default');
-<<<<<<< HEAD
   const [roomCode, setRoomCode] = useState('');
   const [playerId, setPlayerId] = useState('');
   const [gameStatus, setGameStatus] = useState('waiting');
   const [errorMessage, setErrorMessage] = useState('');
-  const [opponentDisconnected, setOpponentDisconnected] = useState(false);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [hasGameStarted, setHasGameStarted] = useState(false);
   const [showDisconnectMessage, setShowDisconnectMessage] = useState(false);
-  const [showThemePreview, setShowThemePreview] = useState(false);
   const [isBgMusicOn, setIsBgMusicOn] = useState(true);
   const [isSoundEffectsOn, setSoundEffectsOn] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
@@ -429,20 +421,13 @@ const TicTacToe = () => {
       handleError(error, 'Failed to make move. Please try again.');
     }
   };
-=======
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
 
   // Theme configurations
   const themes = {
     default: {
-<<<<<<< HEAD
       bgGradient: 'from-indigo-200 via-purple-100 to-pink-200',
       cardBg: 'bg-white',
       menuBg: 'from-indigo-300 via-purple-200 to-pink-300',
-=======
-      bgGradient: 'from-blue-100 to-purple-100',
-      cardBg: 'bg-white',
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
       textColors: {
         playerX: 'text-blue-600',
         playerO: 'text-red-600',
@@ -451,7 +436,6 @@ const TicTacToe = () => {
       }
     },
     dark: {
-<<<<<<< HEAD
       bgGradient: 'from-slate-900 via-purple-900 to-slate-900',
       cardBg: 'bg-gray-800',
       menuBg: 'from-slate-800 via-purple-800 to-slate-800',
@@ -529,25 +513,6 @@ const TicTacToe = () => {
         playerO: 'text-red-600',
         draw: 'text-gray-600',
         nextPlayer: 'text-gray-700'
-=======
-      bgGradient: 'from-gray-900 to-black',
-      cardBg: 'bg-gray-800',
-      textColors: {
-        playerX: 'text-cyan-400',
-        playerO: 'text-pink-500',
-        draw: 'text-gray-300',
-        nextPlayer: 'text-gray-200'
-      }
-    },
-    forest: {
-      bgGradient: 'from-green-200 to-emerald-300',
-      cardBg: 'bg-green-100',
-      textColors: {
-        playerX: 'text-green-700',
-        playerO: 'text-amber-700',
-        draw: 'text-gray-700',
-        nextPlayer: 'text-gray-800'
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
       }
     }
   };
@@ -563,7 +528,6 @@ const TicTacToe = () => {
   // Winner Calculation Function
   const calculateWinner = (squares) => {
     const lines = [
-<<<<<<< HEAD
       [0, 1, 2],
       [3, 4, 5],
       [6, 7, 8],
@@ -576,20 +540,6 @@ const TicTacToe = () => {
     for (let i = 0; i < lines.length; i++) {
       const [a, b, c] = lines[i];
       if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-=======
-      [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-      [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
-      [0, 4, 8], [2, 4, 6] // Diagonals
-    ];
-
-    for (let i = 0; i < lines.length; i++) {
-      const [a, b, c] = lines[i];
-      if (
-        squares[a] &&
-        squares[a] === squares[b] &&
-        squares[a] === squares[c]
-      ) {
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
         return { winner: squares[a], line: lines[i] };
       }
     }
@@ -597,7 +547,7 @@ const TicTacToe = () => {
   };
 
   // AI Move Strategies
-  const findWinningMove = (board, symbol, oppSymbol) => {
+  const findWinningMove = useCallback((board, symbol, oppSymbol) => {
     for (let i = 0; i < board.length; i++) {
       if (board[i] === null) {
         const testBoard = [...board];
@@ -606,11 +556,11 @@ const TicTacToe = () => {
       }
     }
     return null;
-  };
+  }, []);
 
-  const findBlockingMove = (board, symbol, oppSymbol) => {
+  const findBlockingMove = useCallback((board, symbol, oppSymbol) => {
     return findWinningMove(board, oppSymbol, symbol);
-  };
+  }, [findWinningMove]);
 
   const findRandomMove = (board) => {
     const emptySquares = board.reduce((acc, square, index) => 
@@ -619,28 +569,7 @@ const TicTacToe = () => {
   };
 
   // Minimax Algorithm for Hard Difficulty
-  const minimaxMove = (board, symbol) => {
-    const emptySquares = board.reduce((acc, square, index) => 
-      square === null ? [...acc, index] : acc, []);
-
-    let bestScore = -Infinity;
-    let bestMove = null;
-
-    emptySquares.forEach(index => {
-      const testBoard = [...board];
-      testBoard[index] = symbol;
-      const score = minimax(testBoard, 0, false, symbol);
-      
-      if (score > bestScore) {
-        bestScore = score;
-        bestMove = index;
-      }
-    });
-
-    return bestMove;
-  };
-
-  const minimax = (board, depth, isMaximizing, symbol) => {
+  const minimax = useCallback((board, depth, isMaximizing, symbol) => {
     const oppSymbol = symbol === 'X' ? 'O' : 'X';
     const result = calculateWinner(board);
 
@@ -674,10 +603,9 @@ const TicTacToe = () => {
       }
       return bestScore;
     }
-  };
+  }, []);
 
   // AI Move Selection
-<<<<<<< HEAD
   const aiMove = useCallback((board, currentDifficulty) => {
     playSound('click');
 
@@ -759,6 +687,11 @@ const TicTacToe = () => {
         }
         move = bestMove;
         break;
+
+      default:
+        // Fallback to medium difficulty
+        move = findRandomMove(board);
+        break;
     }
 
     if (move === null) {
@@ -768,7 +701,14 @@ const TicTacToe = () => {
     }
 
     return move;
-  }, [playSound, aiSymbol, playerSymbol]);
+  }, [
+    playSound, 
+    aiSymbol, 
+    playerSymbol, 
+    findBlockingMove, 
+    findWinningMove, 
+    minimax // Add missing dependencies
+  ]);
 
   // Add helper functions for medium difficulty
   const findCenterMove = (board) => {
@@ -781,29 +721,6 @@ const TicTacToe = () => {
     return availableCorners.length > 0 ? 
       availableCorners[Math.floor(Math.random() * availableCorners.length)] : 
       null;
-=======
-  const aiMove = (boardState) => {
-    const emptySquares = boardState.reduce((acc, square, index) => 
-      square === null ? [...acc, index] : acc, []);
-
-    switch(difficulty) {
-      case 'easy':
-        return emptySquares[Math.floor(Math.random() * emptySquares.length)];
-      
-      case 'medium':
-        for (let strategy of [findWinningMove, findBlockingMove, findRandomMove]) {
-          const move = strategy(boardState, aiSymbol, playerSymbol);
-          if (move !== null) return move;
-        }
-        break;
-      
-      case 'hard':
-        return minimaxMove(boardState, aiSymbol);
-      
-      default:
-        return findRandomMove(boardState);
-    }
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
   };
 
   // Score Update Function
@@ -822,7 +739,6 @@ const TicTacToe = () => {
 
   // AI Move Effect
   useEffect(() => {
-<<<<<<< HEAD
     if (gameMode === 'playing' && currentPlayer !== playerSymbol && !winner) {
       const timer = setTimeout(() => {
         const move = aiMove(board, difficulty);
@@ -845,32 +761,10 @@ const TicTacToe = () => {
             setWinner('draw');
           } else {
             setCurrentPlayer(playerSymbol);
-=======
-    if (gameMode === 'playing' && gameMode !== 'pvp' && currentPlayer !== playerSymbol && !winner) {
-      const timeout = setTimeout(() => {
-        const move = aiMove(board);
-        if (move !== null) {
-          const boardCopy = [...board];
-          boardCopy[move] = aiSymbol;
-          
-          const gameResult = calculateWinner(boardCopy);
-          
-          setBoard(boardCopy);
-          setCurrentPlayer(playerSymbol);
-          
-          if (gameResult) {
-            setWinner(gameResult.winner);
-            setWinningLine(gameResult.line);
-            updateScore(gameResult.winner);
-          } else if (boardCopy.every(square => square !== null)) {
-            setWinner('draw');
-            updateScore('draw');
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
           }
         }
       }, 500);
 
-<<<<<<< HEAD
       return () => clearTimeout(timer);
     }
   }, [
@@ -904,19 +798,6 @@ const TicTacToe = () => {
       playSound('placeO');
     }
 
-=======
-      return () => clearTimeout(timeout);
-    }
-  }, [currentPlayer, board, winner, gameMode]);
-
-  // Player Move Handler
-  const handleClick = (i) => {
-    if ((gameMode === 'pvai' && currentPlayer !== playerSymbol) || board[i] || winner) return;
-
-    const boardCopy = [...board];
-    boardCopy[i] = currentPlayer;
-    
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
     const gameResult = calculateWinner(boardCopy);
     
     setBoard(boardCopy);
@@ -926,7 +807,6 @@ const TicTacToe = () => {
       setWinner(gameResult.winner);
       setWinningLine(gameResult.line);
       updateScore(gameResult.winner);
-<<<<<<< HEAD
       
       if (gameMode === 'playing') {
         if (gameResult.winner === playerSymbol) {
@@ -937,8 +817,6 @@ const TicTacToe = () => {
       } else if (gameMode === 'pvp') {
         playSound('win');
       }
-=======
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
     } else if (boardCopy.every(square => square !== null)) {
       setWinner('draw');
       updateScore('draw');
@@ -954,16 +832,10 @@ const TicTacToe = () => {
   };
 
   // Render Square Function
-<<<<<<< HEAD
   const renderSquare = (i, isOnline = false) => {
-=======
-  const renderSquare = (i) => {
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
-    const currentTheme = themes[theme];
     const isWinningSquare = winner && winningLine && winningLine.includes(i);
     const isDrawSquare = winner === 'draw';
   
-<<<<<<< HEAD
     const handleSquareClick = () => {
       if (isOnline) {
         handleOnlineMove(i);
@@ -972,38 +844,25 @@ const TicTacToe = () => {
       }
     };
   
-=======
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
     return (
       <button 
         key={i}
         className={`
-<<<<<<< HEAD
           w-full aspect-square 
-=======
-          w-28 h-28 
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
           border-4 
           rounded-xl
           flex items-center justify-center 
           text-4xl font-bold
           transition-all duration-300
           hover:scale-105
-<<<<<<< HEAD
             ${board[i] === 'X' ? 'border-blue-600 text-blue-500' : 
     board[i] === 'O' ? 'border-red-600 text-red-500' : 
     'border-green-400 hover:border-purple-500'}
 
-=======
-          ${board[i] === 'X' ? 'border-blue-500 text-blue-500' : 
-            'border-red-500 text-red-500'}
-          ${board[i] === null ? 'border-green-600 hover:border-gray-500' : ''}
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
           ${winner && winner !== null ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
           ${isWinningSquare ? 'bg-green-100 animate-blink-3x' : ''}
           ${isDrawSquare ? 'animate-blink-3x' : ''}
         `}
-<<<<<<< HEAD
         onClick={handleSquareClick}
         disabled={winner !== null || (isOnline && currentPlayer !== playerSymbol)}
       >
@@ -1014,10 +873,9 @@ const TicTacToe = () => {
 
   // Mode Selection Render
   const renderModeSelection = () => {
-    const currentTheme = themes[theme];
     return (
-      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${currentTheme.menuBg} p-4`}>
-        <div className={`${currentTheme.cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 text-center w-full max-w-md`}>
+      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${themes[theme].menuBg} p-4`}>
+        <div className={`${themes[theme].cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 text-center w-full max-w-md`}>
           <h1 className={`
             text-4xl sm:text-5xl font-bold mb-8 
             ${theme === 'dark' ? 'text-white' : 'text-gray-800'}
@@ -1173,10 +1031,9 @@ const TicTacToe = () => {
 
   // Symbol Selection Render
   const renderSymbolSelection = () => {
-    const currentTheme = themes[theme];
     return (
-      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${currentTheme.menuBg} p-4`}>
-        <div className={`${currentTheme.cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 text-center w-full max-w-md`}>
+      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${themes[theme].menuBg} p-4`}>
+        <div className={`${themes[theme].cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 text-center w-full max-w-md`}>
           <h2 className="text-3xl sm:text-5xl font-extrabold mb-6 sm:mb-10 text-gray-800 flex items-center justify-center">
             <Award className="mr-2 sm:mr-4 text-green-600 animate-pulse w-10 h-10 sm:w-14 sm:h-14" />
             Choose Your Symbol
@@ -1264,165 +1121,12 @@ const TicTacToe = () => {
       </div>
     );
   };
-=======
-        onClick={() => handleClick(i)}
-        disabled={winner !== null}
-      >
-        {board[i] === 'X' ? <X size={72} strokeWidth={3} /> : board[i] === 'O' ? <Circle size={72} strokeWidth={3} /> : null}
-      </button>
-    );
-  };
-  // Mode Selection Render
-  const renderModeSelection = () => (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 to-purple-200 p-4">
-      <div className="bg-white shadow-2xl rounded-3xl p-12 text-center transform transition-all hover:scale-105 hover:shadow-3xl">
-        <h2 className="text-5xl font-extrabold mb-10 text-gray-800 flex items-center justify-center">
-          <Gamepad2 size={56} className="mr-4 text-blue-600 animate-bounce" />
-          Tic Tac Toe
-        </h2>
-        <div className="flex flex-col space-y-8">
-          <button 
-            onClick={() => setGameMode('pvp')}
-            className="
-              bg-gradient-to-r from-blue-500 to-blue-600 text-white 
-              px-10 py-5 rounded-xl 
-              text-2xl font-bold
-              hover:from-blue-600 hover:to-blue-700 
-              transition-all
-              flex items-center justify-center
-              shadow-xl hover:shadow-2xl
-              group
-            "
-          >
-            <X size={40} className="mr-4 group-hover:animate-spin" /> Player vs Player
-          </button>
-          <button 
-            onClick={() => setGameMode('symbol-select')}
-            className="
-              bg-gradient-to-r from-green-500 to-green-600 text-white 
-              px-10 py-5 rounded-xl 
-              text-2xl font-bold
-              hover:from-green-600 hover:to-green-700 
-              transition-all
-              flex items-center justify-center
-              shadow-xl hover:shadow-2xl
-              group
-            "
-          >
-            <Settings size={40} className="mr-4 group-hover:animate-spin" /> Player vs AI
-          </button>
-        </div>
-        
-        {/* Added attribution link */}
-        <div className="mt-6 text-center">
-          <a 
-            href="https://t.me/PSHACKERZ" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="
-              text-xs 
-              text-gray-500 
-              hover:text-blue-600 
-              transition-colors
-              inline-block
-              px-2 py-1
-              bg-gray-100 
-              rounded-md
-            "
-          >
-            Made By @ P.S. Hackerz
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-
-  // Symbol Selection Render
-  const renderSymbolSelection = () => (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 to-purple-200 p-4">
-      <div className="bg-white shadow-2xl rounded-3xl p-12 text-center transform transition-all hover:scale-105 hover:shadow-3xl">
-        <h2 className="text-5xl font-extrabold mb-10 text-gray-800 flex items-center justify-center">
-          <Award size={56} className="mr-4 text-green-600 animate-pulse" />
-          Choose Your Symbol
-        </h2>
-        <div className="flex justify-center space-x-8 mb-8">
-          <button 
-            onClick={() => {
-              setPlayerSymbol('X');
-              setAiSymbol('O');
-              setGameMode('playing');
-              setCurrentPlayer('X');
-            }}
-            className="
-              flex flex-col items-center 
-              bg-gradient-to-r from-blue-500 to-blue-600 text-white 
-              px-10 py-8 rounded-2xl 
-              hover:from-blue-600 hover:to-blue-700
-              transition-all
-              shadow-xl hover:shadow-2xl
-              group
-            "
-          >
-            <X size={80} strokeWidth={3} className="group-hover:animate-spin" />
-            <span className="mt-4 text-xl font-bold">Play as X</span>
-          </button>
-          <button 
-            onClick={() => {
-              setPlayerSymbol('O');
-              setAiSymbol('X');
-              setGameMode('playing');
-              setCurrentPlayer('X');
-            }}
-            className="
-              flex flex-col items-center 
-              bg-gradient-to-r from-red-500 to-red-600 text-white 
-              px-10 py-8 rounded-2xl 
-              hover:from-red-600 hover:to-red-700
-              transition-all
-              shadow-xl hover:shadow-2xl
-              group
-            "
-          >
-            <Circle size={80} strokeWidth={3} className="group-hover:animate-pulse" />
-            <span className="mt-4 text-xl font-bold">Play as O</span>
-          </button>
-        </div>
-        <div className="flex items-center justify-center space-x-6 mt-8">
-          <label className="text-xl font-semibold text-gray-700 flex items-center">
-            <Trophy size={32} className="mr-3 text-yellow-600" />
-            AI Difficulty:
-          </label>
-          <select 
-            value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value)}
-            className="
-              px-6 py-3 
-              border-4 border-green-300 
-              rounded-xl 
-              text-lg
-              focus:outline-none 
-              focus:ring-4 
-              focus:ring-green-500
-              transition-all
-            "
-          >
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Imposible</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  );
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
 
   // Game Board Render
   const renderGameBoard = () => {
-    const currentTheme = themes[theme];
-<<<<<<< HEAD
     return (
-      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${currentTheme.bgGradient} p-4`}>
-        <div className={`${currentTheme.cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 w-full max-w-md`}>
+      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${themes[theme].bgGradient} p-4`}>
+        <div className={`${themes[theme].cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 w-full max-w-md`}>
           {/* Add back button for online mode */}
           {gameMode === 'online' && (
             <div className="mb-4">
@@ -1446,11 +1150,11 @@ const TicTacToe = () => {
           {/* Score display */}
           <div className="flex justify-between w-full mb-4 sm:mb-6">
             <div className="text-center flex-1">
-              <h3 className={`text-base sm:text-xl font-bold ${currentTheme.textColors.playerX}`}>Player X</h3>
+              <h3 className={`text-base sm:text-xl font-bold ${themes[theme].textColors.playerX}`}>Player X</h3>
               <p className="text-xl sm:text-2xl font-extrabold">{score.playerX}</p>
             </div>
             <div className="text-center flex-1">
-              <h3 className={`text-base sm:text-xl font-bold ${currentTheme.textColors.playerO}`}>Player O</h3>
+              <h3 className={`text-base sm:text-xl font-bold ${themes[theme].textColors.playerO}`}>Player O</h3>
               <p className="text-xl sm:text-2xl font-extrabold">{score.playerO}</p>
             </div>
             <div className="text-center flex-1">
@@ -1479,37 +1183,37 @@ const TicTacToe = () => {
           {/* Game status */}
           <div className="mb-4 sm:mb-6 text-center">
             {winner === 'draw' ? (
-              <h2 className={`text-2xl sm:text-3xl font-bold ${currentTheme.textColors.draw}`}>
+              <h2 className={`text-2xl sm:text-3xl font-bold ${themes[theme].textColors.draw}`}>
                 Draw!
               </h2>
             ) : winner ? (
-              <h2 className={`text-2xl sm:text-3xl font-bold ${currentTheme.textColors.playerX} ${!isMobile && 'animate-pulse'}`}>
+              <h2 className={`text-2xl sm:text-3xl font-bold ${themes[theme].textColors.playerX} ${!isMobile && 'animate-pulse'}`}>
                 Winner: {winner}!
               </h2>
             ) : (
               <div className="space-y-2">
-                <h2 className={`text-xl sm:text-2xl ${currentTheme.textColors.nextPlayer}`}>
+                <h2 className={`text-xl sm:text-2xl ${themes[theme].textColors.nextPlayer}`}>
                   {gameMode === 'playing' ? (
                     // AI Game Mode
                     currentPlayer === aiSymbol ? (
-                      <span className={currentTheme.textColors.playerO}>AI's Turn</span>
+                      <span className={themes[theme].textColors.playerO}>AI's Turn</span>
                     ) : (
-                      <span className={currentTheme.textColors.playerX}>Your Turn</span>
+                      <span className={themes[theme].textColors.playerX}>Your Turn</span>
                     )
                   ) : gameMode === 'online' ? (
                     // Online Game Mode
                     currentPlayer === playerSymbol ? (
-                      <span className={currentPlayer === 'X' ? currentTheme.textColors.playerX : currentTheme.textColors.playerO}>
+                      <span className={currentPlayer === 'X' ? themes[theme].textColors.playerX : themes[theme].textColors.playerO}>
                         Your Turn ({gameTag || 'You'})
                       </span>
                     ) : (
-                      <span className={currentPlayer === 'X' ? currentTheme.textColors.playerX : currentTheme.textColors.playerO}>
+                      <span className={currentPlayer === 'X' ? themes[theme].textColors.playerX : themes[theme].textColors.playerO}>
                         Opponent's Turn
                       </span>
                     )
                   ) : (
                     // Local PvP Mode
-                    <span className={currentPlayer === 'X' ? currentTheme.textColors.playerX : currentTheme.textColors.playerO}>
+                    <span className={currentPlayer === 'X' ? themes[theme].textColors.playerX : themes[theme].textColors.playerO}>
                       Player {currentPlayer}'s Turn
                     </span>
                   )}
@@ -1699,131 +1403,128 @@ const TicTacToe = () => {
   }, [gameMode, sounds, isBgMusicOn]);
   
   const renderOnlineMenu = () => {
-    const currentTheme = themes[theme];
     return (
-      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${currentTheme.menuBg} p-4`}>
-        <div className={`${currentTheme.cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 text-center w-full max-w-md`}>
-          {/* Add email display */}
-          {session?.user && (
-            <div className="mb-6 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-500">Logged in as:</p>
-              <p className="text-gray-700 font-medium truncate" title={session.user.email}>
-                {session.user.email}
-              </p>
-            </div>
-          )}
+      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${themes[theme].menuBg} p-4`}>
+        {/* Add email display */}
+        {session?.user && (
+          <div className="mb-6 p-3 bg-gray-50 rounded-lg">
+            <p className="text-sm text-gray-500">Logged in as:</p>
+            <p className="text-gray-700 font-medium truncate" title={session.user.email}>
+              {session.user.email}
+            </p>
+          </div>
+        )}
 
-          <h2 className="text-3xl sm:text-5xl font-extrabold mb-6 sm:mb-10 text-gray-800 flex items-center justify-center">
-            <Globe className="mr-2 sm:mr-4 text-green-600 animate-spin w-10 h-10 sm:w-14 sm:h-14" />
-            Online Play
-          </h2>
-          
-          {/* Create Room Button */}
+        <h2 className="text-3xl sm:text-5xl font-extrabold mb-6 sm:mb-10 text-gray-800 flex items-center justify-center">
+          <Globe className="mr-2 sm:mr-4 text-green-600 animate-spin w-10 h-10 sm:w-14 sm:h-14" />
+          Online Play
+        </h2>
+        
+        {/* Create Room Button */}
+        <button 
+          onClick={() => {
+            playSound('click');
+            createGameRoom();
+          }}
+          className={`
+            w-full mb-6
+            bg-gradient-to-r from-violet-500 to-purple-600 
+            text-white px-6 py-4 rounded-xl 
+            text-xl font-bold
+            hover:from-violet-600 hover:to-purple-700 transition-all
+            flex items-center justify-center
+            shadow-xl hover:shadow-2xl
+            group
+          `}
+        >
+          <Trophy className={`mr-2 w-6 h-6 group-hover:animate-bounce`} />
+          Create New Room
+        </button>
+
+        {/* Join Room Form */}
+        <div className="mb-6">
+          <div className="relative">
+            <input
+              type="text"
+              value={roomCode}
+              onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+              placeholder="Enter Room Code"
+              className="
+                w-full px-4 py-3
+                border-2 border-gray-300 
+                rounded-xl text-lg
+                focus:outline-none 
+                focus:border-green-500
+                transition-colors
+                mb-4
+              "
+              maxLength={6}
+            />
+            {roomCode && (
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(roomCode);
+                  playSound('click');
+                }}
+                className="
+                  absolute right-3 top-1/2 -translate-y-1/2
+                  text-gray-500 hover:text-green-600
+                  transition-colors
+                "
+                title="Copy Room Code"
+              >
+                <Copy className="w-5 h-5" />
+              </button>
+            )}
+          </div>
           <button 
             onClick={() => {
               playSound('click');
-              createGameRoom();
+              joinGameRoom(roomCode);
             }}
             className={`
-              w-full mb-6
-              bg-gradient-to-r from-violet-500 to-purple-600 
+              w-full
+              bg-gradient-to-r from-indigo-500 to-blue-600
               text-white px-6 py-4 rounded-xl 
               text-xl font-bold
-              hover:from-violet-600 hover:to-purple-700 transition-all
+              ${!isMobile && 'hover:from-indigo-600 hover:to-blue-700 transition-all'}
               flex items-center justify-center
-              shadow-xl hover:shadow-2xl
+              shadow-xl ${!isMobile && 'hover:shadow-2xl'}
               group
             `}
           >
-            <Trophy className={`mr-2 w-6 h-6 group-hover:animate-bounce`} />
-            Create New Room
-          </button>
-
-          {/* Join Room Form */}
-          <div className="mb-6">
-            <div className="relative">
-              <input
-                type="text"
-                value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-                placeholder="Enter Room Code"
-                className="
-                  w-full px-4 py-3
-                  border-2 border-gray-300 
-                  rounded-xl text-lg
-                  focus:outline-none 
-                  focus:border-green-500
-                  transition-colors
-                  mb-4
-                "
-                maxLength={6}
-              />
-              {roomCode && (
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(roomCode);
-                    playSound('click');
-                  }}
-                  className="
-                    absolute right-3 top-1/2 -translate-y-1/2
-                    text-gray-500 hover:text-green-600
-                    transition-colors
-                  "
-                  title="Copy Room Code"
-                >
-                  <Copy className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-            <button 
-              onClick={() => {
-                playSound('click');
-                joinGameRoom(roomCode);
-              }}
-              className={`
-                w-full
-                bg-gradient-to-r from-indigo-500 to-blue-600
-                text-white px-6 py-4 rounded-xl 
-                text-xl font-bold
-                ${!isMobile && 'hover:from-indigo-600 hover:to-blue-700 transition-all'}
-                flex items-center justify-center
-                shadow-xl ${!isMobile && 'hover:shadow-2xl'}
-                group
-              `}
-            >
-              <Users className={`mr-2 w-6 h-6 ${!isMobile && 'group-hover:animate-pulse'}`} />
-              Join Room
-            </button>
-          </div>
-
-          {/* Error Message */}
-          {errorMessage && (
-            <div className="mb-6 text-red-500 bg-red-100 p-3 rounded-lg">
-              {errorMessage}
-            </div>
-          )}
-
-          {/* Only Back Button */}
-          <button 
-            onClick={() => {
-              playSound('click');
-              leaveOnlineGame();
-            }}
-            className={`
-              w-full mt-4
-              bg-gradient-to-r from-slate-500 to-slate-600
-              text-white px-4 py-3 rounded-xl 
-              text-lg font-bold
-              ${!isMobile && 'hover:from-slate-600 hover:to-slate-700 transition-all'}
-              flex items-center justify-center
-              shadow-xl hover:shadow-2xl
-              group
-            `}
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Menu
+            <Users className={`mr-2 w-6 h-6 ${!isMobile && 'group-hover:animate-pulse'}`} />
+            Join Room
           </button>
         </div>
+
+        {/* Error Message */}
+        {errorMessage && (
+          <div className="mb-6 text-red-500 bg-red-100 p-3 rounded-lg">
+            {errorMessage}
+          </div>
+        )}
+
+        {/* Only Back Button */}
+        <button 
+          onClick={() => {
+            playSound('click');
+            leaveOnlineGame();
+          }}
+          className={`
+            w-full mt-4
+            bg-gradient-to-r from-slate-500 to-slate-600
+            text-white px-4 py-3 rounded-xl 
+            text-lg font-bold
+            ${!isMobile && 'hover:from-slate-600 hover:to-slate-700 transition-all'}
+            flex items-center justify-center
+            shadow-xl hover:shadow-2xl
+            group
+          `}
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back to Menu
+        </button>
       </div>
     );
   };
@@ -1882,11 +1583,10 @@ const TicTacToe = () => {
           const playerCount = Object.keys(state).length;
           
           if (playerCount < 2 && hasGameStarted) {
-            setOpponentDisconnected(true);
+            setShowDisconnectMessage(true);
             if (disconnectTimer) clearTimeout(disconnectTimer);
             disconnectTimer = setTimeout(() => setShowDisconnectMessage(true), 5000);
           } else {
-            setOpponentDisconnected(false);
             setShowDisconnectMessage(false);
             if (disconnectTimer) clearTimeout(disconnectTimer);
           }
@@ -1945,15 +1645,14 @@ const TicTacToe = () => {
   }, [isMobile]);
 
   // Add better error messages
-  const handleError = (error, defaultMessage) => {
-    console.error(error);
-    const message = error.message || defaultMessage;
-    setErrorMessage(message);
-    setTimeout(() => setErrorMessage(''), 10000); // Auto-clear after 5s
-  };
+  const handleError = useCallback((error, message) => {
+    console.error('Error:', error);
+    setErrorMessage(message || 'An unexpected error occurred');
+    playSound('click');
+  }, [playSound]);
 
   // Reset hasGameStarted when leaving game or starting new game
-  const handleLeaveGame = async () => {
+  const handleLeaveGame = useCallback(async () => {
     try {
       playSound('click');
       
@@ -1967,7 +1666,6 @@ const TicTacToe = () => {
 
       if (error) throw error;
       
-      // Reset all states
       setGameMode('mode-select');
       setErrorMessage('');
       setRoomCode('');
@@ -1978,9 +1676,8 @@ const TicTacToe = () => {
       setMessages([]);
       setGameStatus('waiting');
       setScore({ playerX: 0, playerO: 0, draws: 0 });
-      setHasGameStarted(false); // Reset hasGameStarted
+      setHasGameStarted(false);
       
-      // Stop any playing sounds
       Object.values(sounds).forEach(sound => {
         sound.stop();
       });
@@ -1991,18 +1688,17 @@ const TicTacToe = () => {
       console.error('Error leaving game:', error);
       handleError(error, 'Failed to leave game. Please try again.');
     }
-  };
+  }, [playSound, playerSymbol, roomCode, sounds, handleError]);
 
   // Add Settings Menu component
   const renderSettings = () => {
-    const currentTheme = themes[theme];
     const isDarkTheme = theme === 'dark';
     
     return (
-      <div className={`fixed inset-0 bg-gradient-to-br ${currentTheme.bgGradient} flex items-center justify-center p-4`}>
+      <div className={`fixed inset-0 bg-gradient-to-br ${themes[theme].bgGradient} flex items-center justify-center p-4`}>
         {showGameTagModal && renderGameTagModal()}
         
-        <div className={`${currentTheme.cardBg} rounded-xl shadow-2xl p-6 max-w-md w-full`}>
+        <div className={`${themes[theme].cardBg} rounded-xl shadow-2xl p-6 max-w-md w-full`}>
           <h2 className={`text-2xl font-bold mb-6 ${isDarkTheme ? 'text-white' : 'text-gray-800'}`}>Settings</h2>
 
           {/* User Profile Section */}
@@ -2157,13 +1853,12 @@ const TicTacToe = () => {
 
   // Add the Auth UI modal component
   const renderAuthModal = () => {
-    const currentTheme = themes[theme];
     const isDarkTheme = theme === 'dark';
     
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className={`
-          ${currentTheme.cardBg} 
+          ${themes[theme].cardBg} 
           rounded-xl shadow-2xl 
           p-6 max-w-md w-full 
           max-h-[90vh] overflow-y-auto
@@ -2395,33 +2090,11 @@ const TicTacToe = () => {
 
   // Add the confirmation dialog component
   const renderLeaveConfirmation = () => {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-xl shadow-2xl p-6 max-w-sm w-full">
-          <h3 className="text-xl font-bold mb-4">Leave Game?</h3>
-          <p className="text-gray-600 mb-6">Are you sure you want to leave the game? Your opponent will win by default.</p>
-          <div className="flex space-x-4">
-            <button
-              onClick={() => {
-                playSound('click');
-                setShowLeaveConfirmation(false);
-              }}
-              className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => {
-                playSound('click');
-                setShowLeaveConfirmation(false);
-                leaveOnlineGame();
-              }}
-              className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-            >
-              Leave Game
-            </button>
-          </div>
-        </div>
+    return showLeaveConfirmation && (
+      <div>
+        <button onClick={handleLeaveGame}>
+          Confirm Leave
+        </button>
       </div>
     );
   };
@@ -2554,112 +2227,20 @@ const TicTacToe = () => {
               "
             >
               Save
-=======
-
-    return (
-      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${currentTheme.bgGradient} p-4`}>
-        <div className={`${currentTheme.cardBg} rounded-2xl shadow-2xl p-8 w-full max-w-md`}>
-          <div className="flex justify-between w-full mb-6">
-            <div className="text-center flex-1">
-              <h3 className={`text-xl font-bold ${currentTheme.textColors.playerX}`}>Player X</h3>
-              <p className="text-2xl font-extrabold">{score.playerX}</p>
-            </div>
-            <div className="text-center flex-1">
-              <h3 className={`text-xl font-bold ${currentTheme.textColors.playerO}`}>Player O</h3>
-              <p className="text-2xl font-extrabold">{score.playerO}</p>
-            </div>
-            <div className="text-center flex-1">
-              <h3 className="text-xl font-bold text-gray-600">Draws</h3>
-              <p className="text-2xl font-extrabold">{score.draws}</p>
-            </div>
-          </div>
-
-          <div className="mb-6 text-center">
-            {winner === 'draw' ? (
-              <h2 className={`text-3xl font-bold ${currentTheme.textColors.draw}`}>
-                Draw!
-              </h2>
-            ) : winner ? (
-              <h2 className={`text-3xl font-bold ${currentTheme.textColors.playerX} animate-pulse`}>
-                Winner: {winner}!
-              </h2>
-            ) : (
-              <h2 className={`text-2xl ${currentTheme.textColors.nextPlayer}`}>
-                Next Player: <span className={currentPlayer === 'X' ? currentTheme.textColors.playerX : currentTheme.textColors.playerO}>{currentPlayer}</span>
-              </h2>
-            )}
-          </div>
-
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            {[0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => renderSquare(i))}
-          </div>
-
-          <div className="flex justify-center space-x-4">
-            <button 
-              onClick={resetGame}
-              className="
-                flex items-center
-                bg-blue-500 
-                text-white 
-                px-6 py-3 
-                rounded-lg 
-                hover:bg-blue-600
-                transition-colors
-                shadow-md hover:shadow-lg
-              "
-            >
-              <RefreshCw size={24} className="mr-2" /> Reset Game
-            </button>
-            <button 
-              onClick={() => setGameMode('mode-select')}
-              className="
-                flex items-center
-                bg-red-500 
-                text-white 
-                px-6 py-3 
-                rounded-lg 
-                hover:bg-red-600
-                transition-colors
-                shadow-md hover:shadow-lg
-              "
-            >
-              <Gamepad2 size={24} className="mr-2" /> Change Mode
-            </button>
-            <button 
-              onClick={cycleTheme}
-              className="
-                flex items-center
-                bg-purple-500 
-                text-white 
-                px-6 py-3 
-                rounded-lg 
-                hover:bg-purple-600
-                transition-colors
-                shadow-md hover:shadow-lg
-              "
-            >
-              <Palette size={24} className="mr-2" /> Theme
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
             </button>
           </div>
         </div>
       </div>
     );
   };
-<<<<<<< HEAD
-=======
-  
-  
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
 
   // Main Component Return
   return (
     <div>
-<<<<<<< HEAD
       {showSettings ? renderSettings() : (
         <>
           {showAuth && renderAuthModal()}
-          {showLeaveConfirmation && renderLeaveConfirmation()}
+          {renderLeaveConfirmation()}
           {showGameTagModal && renderGameTagModal()}
           {gameMode === 'mode-select' && renderModeSelection()}
           {gameMode === 'online-menu' && renderOnlineMenu()}
@@ -2717,12 +2298,6 @@ const TicTacToe = () => {
           )}
         </>
       )}
-=======
-      {gameMode === 'mode-select' && renderModeSelection()}
-      {gameMode === 'pvp' && renderGameBoard()}
-      {gameMode === 'symbol-select' && renderSymbolSelection()}
-      {gameMode === 'playing' && renderGameBoard()}
->>>>>>> d5f3fa0a1237bb1096d0274ab439b782326236ef
     </div>
   );
 };
