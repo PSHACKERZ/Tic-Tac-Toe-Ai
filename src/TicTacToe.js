@@ -12,7 +12,7 @@ import {
   Globe, 
   Copy, 
   Music, 
-  Volume2, 
+  Volume2,  
   Settings, 
   ArrowLeft 
 } from 'lucide-react';

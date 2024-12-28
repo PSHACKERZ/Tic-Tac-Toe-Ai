@@ -53,3 +53,5 @@ yarn-error.log*
 # Cache directories
 .cache/
 .next/
+.ssh/SSH_KEYS.pub
+.gitignore
