@@ -24,3 +24,9 @@ yarn-error.log*
 
 # Local Netlify folder
 .netlify
+
+# Environment Variables
+.env
+
+# Sound files (if they're large and should be hosted elsewhere)
+/public/sounds/
