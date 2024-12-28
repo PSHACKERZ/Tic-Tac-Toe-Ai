@@ -833,7 +833,6 @@ const TicTacToe = () => {
 
   // Render Square Function
   const renderSquare = (i, isOnline = false) => {
-    const currentTheme = themes[theme];
     const isWinningSquare = winner && winningLine && winningLine.includes(i);
     const isDrawSquare = winner === 'draw';
   
@@ -874,10 +873,9 @@ const TicTacToe = () => {
 
   // Mode Selection Render
   const renderModeSelection = () => {
-    const currentTheme = themes[theme];
     return (
-      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${currentTheme.menuBg} p-4`}>
-        <div className={`${currentTheme.cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 text-center w-full max-w-md`}>
+      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${themes[theme].menuBg} p-4`}>
+        <div className={`${themes[theme].cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 text-center w-full max-w-md`}>
           <h1 className={`
             text-4xl sm:text-5xl font-bold mb-8 
             ${theme === 'dark' ? 'text-white' : 'text-gray-800'}
@@ -1033,10 +1031,9 @@ const TicTacToe = () => {
 
   // Symbol Selection Render
   const renderSymbolSelection = () => {
-    const currentTheme = themes[theme];
     return (
-      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${currentTheme.menuBg} p-4`}>
-        <div className={`${currentTheme.cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 text-center w-full max-w-md`}>
+      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${themes[theme].menuBg} p-4`}>
+        <div className={`${themes[theme].cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 text-center w-full max-w-md`}>
           <h2 className="text-3xl sm:text-5xl font-extrabold mb-6 sm:mb-10 text-gray-800 flex items-center justify-center">
             <Award className="mr-2 sm:mr-4 text-green-600 animate-pulse w-10 h-10 sm:w-14 sm:h-14" />
             Choose Your Symbol
@@ -1648,12 +1645,11 @@ const TicTacToe = () => {
   }, [isMobile]);
 
   // Add better error messages
-  const handleError = (error, defaultMessage) => {
-    console.error(error);
-    const message = error.message || defaultMessage;
-    setErrorMessage(message);
-    setTimeout(() => setErrorMessage(''), 10000); // Auto-clear after 5s
-  };
+  const handleError = useCallback((error, message) => {
+    console.error('Error:', error);
+    setErrorMessage(message || 'An unexpected error occurred');
+    playSound('click');
+  }, [playSound]);
 
   // Reset hasGameStarted when leaving game or starting new game
   const handleLeaveGame = useCallback(async () => {
