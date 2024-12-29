@@ -6,6 +6,25 @@ A feature-rich, modern implementation of the classic Tic Tac Toe game built with
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/00aa4048-7c73-4012-8dfe-232ae5992151/deploy-status)](https://app.netlify.com/sites/tictactoeaibyps/deploys)
 
+---
+
+### Play the Game Online
+
+- [Play the game on Netlify](https://tictactoeaibyps.netlify.app/)
+- [Play the game on GitHub Pages](https://pshackerz.github.io/Tic-Tac-Toe-Ai/)
+
+---
+
+### Download the App
+
+<a href="https://www.amazon.com/dp/B0DQ4X68MC/">
+    <img src="https://static.itch.io/images/store_badges/amazon.png" 
+         srcset="https://static.itch.io/images/store_badges/amazon.png 1x, https://static.itch.io/images/store_badges/amazon@2x.png 2x">
+</a>
+
+
+ 
+
 [![Tic Tac Toe Game](https://i.postimg.cc/rmx99Dsq/Screenshot-2024-12-29-020344.png)](https://postimg.cc/qhBnJM2F)
 
 ## 🎯 Key Features
