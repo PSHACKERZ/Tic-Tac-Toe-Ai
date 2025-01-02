@@ -71,10 +71,10 @@ A feature-rich, modern implementation of the classic Tic Tac Toe game built with
 
 ```bash
 # Clone repository
-git clone https://github.com/PSHACKERZ/tic-tac-toe.git
+git clone https://github.com/PSHACKERZ/Tic-Tac-Toe-Ai.git
 
 # Install dependencies
-cd tic-tac-toe
+cd Tic-Tac-Toe-Ai
 npm install
 
 # Start development server
