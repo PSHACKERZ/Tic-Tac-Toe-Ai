@@ -1405,126 +1405,174 @@ const TicTacToe = () => {
   const renderOnlineMenu = () => {
     return (
       <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${themes[theme].menuBg} p-4`}>
-        {/* Add email display */}
-        {session?.user && (
-          <div className="mb-6 p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-500">Logged in as:</p>
-            <p className="text-gray-700 font-medium truncate" title={session.user.email}>
-              {session.user.email}
-            </p>
-          </div>
-        )}
+        <div className={`${themes[theme].cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 text-center w-full max-w-md`}>
+          {/* User Profile Card */}
+          {session?.user && (
+            <div className="mb-8 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl shadow-inner">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <p className="text-sm text-gray-500">Logged in as:</p>
+                  <p className="text-gray-700 font-medium truncate" title={session.user.email}>
+                    {session.user.email}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-3 h-3 bg-green-400 rounded-full animate-pulse"></span>
+                  <span className="text-sm text-green-600 font-medium">Online</span>
+                </div>
+              </div>
+              {/* Game Tag Display */}
+              <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-gray-500">Game Tag:</p>
+                  <p className="text-gray-700 font-medium">
+                    {gameTag || 'Not set'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    playSound('click');
+                    setShowGameTagModal(true);
+                  }}
+                  className="
+                    px-4 py-2
+                    bg-gradient-to-r from-green-500 to-green-600
+                    text-white rounded-lg 
+                    hover:from-green-600 hover:to-green-700 
+                    transition-colors
+                    text-sm font-medium
+                    shadow-md hover:shadow-lg
+                    transform hover:scale-105
+                  "
+                >
+                  {gameTag ? 'Change Tag' : 'Set Tag'}
+                </button>
+              </div>
+            </div>
+          )}
 
-        <h2 className="text-3xl sm:text-5xl font-extrabold mb-6 sm:mb-10 text-gray-800 flex items-center justify-center">
-          <Globe className="mr-2 sm:mr-4 text-green-600 animate-spin w-10 h-10 sm:w-14 sm:h-14" />
-          Online Play
-        </h2>
-        
-        {/* Create Room Button */}
-        <button 
-          onClick={() => {
-            playSound('click');
-            createGameRoom();
-          }}
-          className={`
-            w-full mb-6
-            bg-gradient-to-r from-violet-500 to-purple-600 
-            text-white px-6 py-4 rounded-xl 
-            text-xl font-bold
-            hover:from-violet-600 hover:to-purple-700 transition-all
-            flex items-center justify-center
-            shadow-xl hover:shadow-2xl
-            group
-          `}
-        >
-          <Trophy className={`mr-2 w-6 h-6 group-hover:animate-bounce`} />
-          Create New Room
-        </button>
+          {/* Title */}
+          <h2 className="text-3xl sm:text-4xl font-extrabold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 flex items-center justify-center gap-3">
+            <Globe className="w-8 h-8 text-blue-500 animate-spin-slow" />
+            Online Play
+          </h2>
 
-        {/* Join Room Form */}
-        <div className="mb-6">
-          <div className="relative">
-            <input
-              type="text"
-              value={roomCode}
-              onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-              placeholder="Enter Room Code"
-              className="
-                w-full px-4 py-3
-                border-2 border-gray-300 
-                rounded-xl text-lg
-                focus:outline-none 
-                focus:border-green-500
-                transition-colors
-                mb-4
-              "
-              maxLength={6}
-            />
-            {roomCode && (
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(roomCode);
-                  playSound('click');
-                }}
-                className="
-                  absolute right-3 top-1/2 -translate-y-1/2
-                  text-gray-500 hover:text-green-600
-                  transition-colors
-                "
-                title="Copy Room Code"
-              >
-                <Copy className="w-5 h-5" />
-              </button>
-            )}
-          </div>
+          {/* Create Room Button */}
           <button 
             onClick={() => {
               playSound('click');
-              joinGameRoom(roomCode);
+              createGameRoom();
             }}
             className={`
-              w-full
-              bg-gradient-to-r from-indigo-500 to-blue-600
+              w-full mb-6
+              bg-gradient-to-r from-violet-500 to-purple-600 
               text-white px-6 py-4 rounded-xl 
               text-xl font-bold
-              ${!isMobile && 'hover:from-indigo-600 hover:to-blue-700 transition-all'}
+              hover:from-violet-600 hover:to-purple-700 
+              transition-all duration-300
               flex items-center justify-center
-              shadow-xl ${!isMobile && 'hover:shadow-2xl'}
+              shadow-xl hover:shadow-2xl
+              transform hover:scale-105
               group
             `}
           >
-            <Users className={`mr-2 w-6 h-6 ${!isMobile && 'group-hover:animate-pulse'}`} />
-            Join Room
+            <Trophy className="w-6 h-6 mr-3 group-hover:animate-bounce" />
+            Create New Room
+          </button>
+
+          {/* Join Room Section */}
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-2xl shadow-inner mb-6">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Join Existing Room</h3>
+            <div className="relative mb-4">
+              <input
+                type="text"
+                value={roomCode}
+                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                placeholder="Enter Room Code"
+                className="
+                  w-full px-4 py-3
+                  border-2 border-gray-300 
+                  rounded-xl text-lg
+                  focus:outline-none 
+                  focus:border-blue-500
+                  transition-colors
+                  bg-white
+                  placeholder-gray-400
+                "
+                maxLength={6}
+              />
+              {roomCode && (
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(roomCode);
+                    playSound('click');
+                  }}
+                  className="
+                    absolute right-3 top-1/2 -translate-y-1/2
+                    text-gray-500 hover:text-blue-600
+                    transition-colors
+                    p-2 hover:bg-blue-50 rounded-lg
+                  "
+                  title="Copy Room Code"
+                >
+                  <Copy className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+            <button 
+              onClick={() => {
+                playSound('click');
+                joinGameRoom(roomCode);
+              }}
+              disabled={!roomCode}
+              className={`
+                w-full
+                bg-gradient-to-r from-blue-500 to-indigo-600
+                text-white px-6 py-4 rounded-xl 
+                text-xl font-bold
+                transition-all duration-300
+                flex items-center justify-center
+                shadow-xl hover:shadow-2xl
+                transform hover:scale-105
+                group
+                ${!roomCode ? 'opacity-50 cursor-not-allowed' : 'hover:from-blue-600 hover:to-indigo-700'}
+              `}
+            >
+              <Users className="w-6 h-6 mr-3 group-hover:animate-pulse" />
+              Join Room
+            </button>
+          </div>
+
+          {/* Error Message */}
+          {errorMessage && (
+            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
+              <p className="text-red-600 font-medium">{errorMessage}</p>
+            </div>
+          )}
+
+          {/* Back Button */}
+          <button 
+            onClick={() => {
+              playSound('click');
+              leaveOnlineGame();
+            }}
+            className={`
+              w-full
+              bg-gradient-to-r from-gray-500 to-gray-600
+              text-white px-4 py-3 rounded-xl 
+              text-lg font-bold
+              hover:from-gray-600 hover:to-gray-700 
+              transition-all duration-300
+              flex items-center justify-center
+              shadow-lg hover:shadow-xl
+              transform hover:scale-105
+              group
+            `}
+          >
+            <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+            Back to Menu
           </button>
         </div>
-
-        {/* Error Message */}
-        {errorMessage && (
-          <div className="mb-6 text-red-500 bg-red-100 p-3 rounded-lg">
-            {errorMessage}
-          </div>
-        )}
-
-        {/* Only Back Button */}
-        <button 
-          onClick={() => {
-            playSound('click');
-            leaveOnlineGame();
-          }}
-          className={`
-            w-full mt-4
-            bg-gradient-to-r from-slate-500 to-slate-600
-            text-white px-4 py-3 rounded-xl 
-            text-lg font-bold
-            ${!isMobile && 'hover:from-slate-600 hover:to-slate-700 transition-all'}
-            flex items-center justify-center
-            shadow-xl hover:shadow-2xl
-            group
-          `}
-        >
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Back to Menu
-        </button>
       </div>
     );
   };
