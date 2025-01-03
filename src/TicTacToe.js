@@ -636,7 +636,7 @@ const TicTacToe = () => {
           focus:ring-2 focus:ring-purple-500
           touch-manipulation
         `}
-        onClick={handleInteraction(handleSquareClick)}
+        onClick={handleMobileClick(handleInteraction(handleSquareClick))}
         disabled={winner !== null || (isOnline && currentPlayer !== playerSymbol)}
         style={{ WebkitTapHighlightColor: 'transparent' }}
       >
