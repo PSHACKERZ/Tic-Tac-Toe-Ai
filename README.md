@@ -24,16 +24,12 @@ A feature-rich, modern implementation of the classic Tic Tac Toe game built with
 
 
  
-
-<<<<<<< HEAD
 [![Tic Tac Toe Game](https://i.postimg.cc/8PZ9SqJy/1.png)](https://i.postimg.cc/8PZ9SqJy/1.png)
 [![Tic Tac Toe Game](https://i.postimg.cc/CxdtLmbw/2.png)](https://i.postimg.cc/CxdtLmbw/2.png)
 [![Tic Tac Toe Game](https://i.postimg.cc/s2hN5xn8/3.png)](https://i.postimg.cc/s2hN5xn8/3.png)
 [![Tic Tac Toe Game](https://i.postimg.cc/fRFP3mvm/4.png)](https://i.postimg.cc/fRFP3mvm/4.png)
 [![Tic Tac Toe Game](https://i.postimg.cc/nzfw2xgL/5.png)](https://i.postimg.cc/nzfw2xgL/5.png)
-=======
 [![Tic Tac Toe Game](https://i.postimg.cc/rmx99Dsq/Screenshot-2024-12-29-020344.png)](https://postimg.cc/qhBnJM2F)
->>>>>>> 7096fdf4693cdec0759627d4f400fef035f2e88e
 
 ## 🎯 Key Features
 
