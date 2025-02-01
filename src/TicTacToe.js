@@ -21,7 +21,124 @@ import { supabase } from './lib/supabaseClient';
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
 
+// Add this CSS at the top of your component
+const styles = `
+  .gsi-material-button {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -webkit-appearance: none;
+    background-color: WHITE;
+    background-image: none;
+    border: 1px solid #747775;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    color: #1f1f1f;
+    cursor: pointer;
+    font-family: 'Roboto', arial, sans-serif;
+    font-size: 14px;
+    height: 40px;
+    letter-spacing: 0.25px;
+    outline: none;
+    overflow: hidden;
+    padding: 0 12px;
+    position: relative;
+    text-align: center;
+    -webkit-transition: background-color .218s, border-color .218s, box-shadow .218s;
+    transition: background-color .218s, border-color .218s, box-shadow .218s;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: auto;
+    max-width: 400px;
+    min-width: min-content;
+  }
+
+  .gsi-material-button .gsi-material-button-icon {
+    height: 20px;
+    margin-right: 12px;
+    min-width: 20px;
+    width: 20px;
+  }
+
+  .gsi-material-button .gsi-material-button-content-wrapper {
+    -webkit-align-items: center;
+    align-items: center;
+    display: flex;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -webkit-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    height: 100%;
+    justify-content: space-between;
+    position: relative;
+    width: 100%;
+  }
+
+  .gsi-material-button .gsi-material-button-contents {
+    -webkit-flex-grow: 1;
+    flex-grow: 1;
+    font-family: 'Roboto', arial, sans-serif;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: top;
+  }
+
+  .gsi-material-button .gsi-material-button-state {
+    -webkit-transition: opacity .218s;
+    transition: opacity .218s;
+    bottom: 0;
+    left: 0;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  .gsi-material-button:disabled {
+    cursor: default;
+    background-color: #ffffff61;
+    border-color: #1f1f1f1f;
+  }
+
+  .gsi-material-button:disabled .gsi-material-button-contents {
+    opacity: 38%;
+  }
+
+  .gsi-material-button:disabled .gsi-material-button-icon {
+    opacity: 38%;
+  }
+
+  .gsi-material-button:not(:disabled):active .gsi-material-button-state,
+  .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
+    background-color: #303030;
+    opacity: 12%;
+  }
+
+  .gsi-material-button:not(:disabled):hover {
+    -webkit-box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+  }
+
+  .gsi-material-button:not(:disabled):hover .gsi-material-button-state {
+    background-color: #303030;
+    opacity: 8%;
+  }
+`;
+
 const TicTacToe = () => {
+  // Add the styles to the document
+  useEffect(() => {
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = styles;
+    document.head.appendChild(styleSheet);
+    return () => {
+      document.head.removeChild(styleSheet);
+    };
+  }, []);
+
   // State Variables
   const [board, setBoard] = useState(Array(9).fill(null));
   const [playerSymbol, setPlayerSymbol] = useState('X');
@@ -601,6 +718,30 @@ const TicTacToe = () => {
     setWinningLine(null);
   };
 
+  // Update the handleResetClick function
+  const handleResetClick = () => {
+    // Always reset the game first for immediate feedback
+    resetGame();
+    playSound('click');
+
+    // Then try to show an ad if we're in Android
+    if (window.Android) {
+      try {
+        window.Android.showRewardedAd();
+      } catch (error) {
+        console.log('Error showing ad:', error);
+      }
+    }
+  };
+
+  // Update the callback to only handle successful ad completions
+  window.onRewardEarned = (success) => {
+    if (success) {
+      // Maybe give some bonus or special effect for watching the ad
+      playSound('win');
+    }
+  };
+
   // Render Square Function
   const renderSquare = (i, isOnline = false) => {
     const isWinningSquare = winner && winningLine && winningLine.includes(i);
@@ -1086,10 +1227,7 @@ const TicTacToe = () => {
             // Local mode controls
             <div className="mt-4 flex justify-center space-x-2 sm:space-x-4">
               <button 
-                onClick={() => {
-                  playSound('click');
-                  resetGame();
-                }}
+                onClick={handleResetClick}
                 className={`
                   flex items-center bg-indigo-500 text-white 
                   px-3 py-2 sm:px-6 sm:py-3 rounded-lg 
@@ -1492,6 +1630,7 @@ const TicTacToe = () => {
       subscribeToRoom(newRoomCode);
       subscribeToMessages(newRoomCode);
     } catch (error) {
+      console.error('Error creating room:', error);
       handleError(error, 'Failed to create room. Please try again.');
     }
   };
@@ -1730,14 +1869,14 @@ const TicTacToe = () => {
       console.error('Error leaving game:', error);
       handleError(error, 'Failed to leave game. Please try again.');
     }
-  }, [playSound, playerSymbol, roomCode, sounds, handleError]);
+  }, [playSound, playerSymbol, roomCode, sounds]);
 
   // Add Settings Menu component
   const renderSettings = () => {
     const isDarkTheme = theme === 'dark';
     
     return (
-      <div className={`fixed inset-0 bg-gradient-to-br ${themes[theme].bgGradient} flex items-center justify-center p-4`}>
+      <div className="fixed inset-0 bg-gradient-to-br ${themes[theme].bgGradient} flex items-center justify-center p-4">
         {showGameTagModal && renderGameTagModal()}
         
         <div className={`${themes[theme].cardBg} rounded-xl shadow-2xl p-6 max-w-md w-full`}>
@@ -1948,102 +2087,45 @@ const TicTacToe = () => {
               bg-blue-50 
               border-2 border-blue-100
             `}>
-              Create an account or sign in to play online matches, 
-              save your stats, and compete with players worldwide!
+              Sign in to play online matches, save your stats, and compete with players worldwide!
             </p>
           </div>
 
-          {/* Customized Auth UI */}
-          <Auth
-            supabaseClient={supabase}
-            appearance={{
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: 'rgb(37 99 235)',
-                    brandAccent: 'rgb(29 78 216)',
-                    defaultButtonBackground: 'rgb(37 99 235)',
-                    defaultButtonBackgroundHover: 'rgb(29 78 216)',
-                  },
-                  space: {
-                    inputPadding: '1rem',
-                    buttonPadding: '1rem',
-                  },
-                  borderWidths: {
-                    buttonBorderWidth: '2px',
-                    inputBorderWidth: '2px',
-                  },
-                  radii: {
-                    borderRadiusButton: '0.75rem',
-                    buttonBorderRadius: '0.75rem',
-                    inputBorderRadius: '0.75rem',
-                  },
-                },
-              },
-              style: {
-                button: {
-                  fontSize: '1.125rem',
-                  fontWeight: '600',
-                  transition: 'all 0.2s ease',
-                  transform: 'scale(1)',
-                  '&:hover': {
-                    transform: 'scale(1.02)',
-                  },
-                },
-                input: {
-                  fontSize: '1rem',
-                  backgroundColor: 'white',
-                },
-                anchor: {
-                  color: 'rgb(37 99 235)',
-                  fontWeight: '500',
-                  '&:hover': {
-                    color: 'rgb(29 78 216)',
-                  },
-                },
-                message: {
-                  fontSize: '0.875rem',
-                  borderRadius: '0.5rem',
-                  padding: '1rem',
-                },
-              },
-            }}
-            theme={isDarkTheme ? 'dark' : 'default'}
-            providers={[]}
-            redirectTo="https://tictactoeaibyps.netlify.app"  // Update this line
-            magicLink={true}
-            localization={{
-              variables: {
-                sign_in: {
-                  email_label: 'Your Email',
-                  password_label: 'Your Secret Code',
-                  button_label: 'Enter Game',
-                  loading_button_label: 'Entering Game...',
-                  email_input_placeholder: 'Enter your email',
-                  password_input_placeholder: 'Enter your secret code',
-                },
-                sign_up: {
-                  email_label: 'Choose Your Email',
-                  password_label: 'Create Secret Code',
-                  button_label: 'Join Game',
-                  loading_button_label: 'Creating Player...',
-                  email_input_placeholder: 'Enter your email',
-                  password_input_placeholder: 'Create a secret code',
-                },
-                magic_link: {
-                  button_label: 'Login with Magic Link',
-                  loading_button_label: 'Sending Magic Spell...',
-                  email_input_placeholder: 'Enter your email',
-                },
-              },
-            }}
-          />
+          {/* Custom Google Sign In Button */}
+          <div className="flex justify-center">
+            <button 
+              onClick={() => {
+                playSound('click');
+                supabase.auth.signInWithOAuth({
+                  provider: 'google',
+                  options: {
+                    redirectTo: 'https://fkasbkmcoumsezziolzo.supabase.co/auth/v1/callback'
+                  }
+                });
+              }}
+              className="gsi-material-button w-[300px] h-[50px] mb-6 transform hover:scale-105 transition-transform"
+            >
+              <div className="gsi-material-button-state"></div>
+              <div className="gsi-material-button-content-wrapper">
+                <div className="gsi-material-button-icon">
+                  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style={{ display: 'block', width: '24px', height: '24px' }}>
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                    <path fill="none" d="M0 0h48v48H0z"></path>
+                  </svg>
+                </div>
+                <span className="gsi-material-button-contents text-base">Sign in with Google</span>
+                <span style={{ display: 'none' }}>Sign in with Google</span>
+              </div>
+            </button>
+          </div>
 
           {/* Footer with game theme */}
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-500">
-              By joining, you agree to play fair and have fun! 🎮
+              By signing in, you agree to play fair and have fun! 🎮
             </p>
           </div>
         </div>
@@ -2078,24 +2160,22 @@ const TicTacToe = () => {
 
       // Reset all game state
       setGameMode('mode-select');
-      setRoomCode('');
       setErrorMessage('');
+      setRoomCode('');
       setBoard(Array(9).fill(null));
       setWinner(null);
       setCurrentPlayer('X');
-      setGameStatus('waiting');
+      setWinningLine(null);
       setMessages([]);
-      setHasGameStarted(false);
-      setShowDisconnectMessage(false);
+      setGameStatus('waiting');
       setScore({ playerX: 0, playerO: 0, draws: 0 });
-
-      // Stop all sounds
+      setHasGameStarted(false);
+      
       Object.values(sounds).forEach(sound => {
-        if (sound.playing()) {
-          sound.fade(sound.volume(), 0, 200);
-          setTimeout(() => sound.stop(), 200);
-        }
+        sound.stop();
       });
+
+      setShowDisconnectMessage(false);
 
     } catch (error) {
       console.error('Error cleaning up game:', error);
@@ -2541,7 +2621,7 @@ const TicTacToe = () => {
               <button
                 onClick={() => {
                   playSound('click');
-                  window.location.reload();
+                  window.location.reload(); // This will refresh the page
                 }}
                 className={`
                   bg-green-500 text-white px-4 py-2 rounded-lg

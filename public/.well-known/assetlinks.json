@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.pshackerz.tictactoe",
+      "sha256_cert_fingerprints": [
+        "E4:F7:2F:88:9F:71:B2:F6:9C:88:1C:AE:B7:1F:B1:D1:59:99:3C:80:D9:53:E8:FD:05:C1:AA:E0:6E:95:D7:CF"
+      ]
+    }
+  }
+] 
