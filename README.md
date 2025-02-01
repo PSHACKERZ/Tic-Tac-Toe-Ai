@@ -2,18 +2,20 @@
 
 A feature-rich, modern implementation of the classic Tic Tac Toe game built with React and Supabase. Challenge friends locally, battle against AI, or compete in real-time online matches!
 
+![TicTacToe AI Screenshot](https://i.postimg.cc/GtyrrrvT/logo.png)
+
+---
+
 [![Play Now](https://img.shields.io/badge/Play%20Now-Live%20Demo-blue)](https://tictactoeaibyps.netlify.app/)
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/00aa4048-7c73-4012-8dfe-232ae5992151/deploy-status)](https://app.netlify.com/sites/tictactoeaibyps/deploys)
 
----
 
 ### Play the Game Online
 
 - [Play the game on Netlify](https://tictactoeaibyps.netlify.app/)
 - [Play the game on GitHub Pages](https://pshackerz.github.io/Tic-Tac-Toe-Ai/)
 
----
 
 ### Download the App
 
@@ -22,18 +24,18 @@ A feature-rich, modern implementation of the classic Tic Tac Toe game built with
          srcset="https://static.itch.io/images/store_badges/amazon.png 1x, https://static.itch.io/images/store_badges/amazon@2x.png 2x">
 </a>
 
+---
 
+### ScreenShots of Game 
+<details>
+  <summary>Click to view Screenshots</summary>
+  <img src="https://i.postimg.cc/8PZ9SqJy/1.png" width="500">
+  <img src="https://i.postimg.cc/CxdtLmbw/2.png" width="500">
+  <img src="https://i.postimg.cc/s2hN5xn8/3.png" width="500">
+  <img src="https://i.postimg.cc/fRFP3mvm/4.png" width="500">
+  <img src="https://i.postimg.cc/nzfw2xgL/5.png" width="500">
+</details>
  
-
-<<<<<<< HEAD
-[![Tic Tac Toe Game](https://i.postimg.cc/8PZ9SqJy/1.png)](https://i.postimg.cc/8PZ9SqJy/1.png)
-[![Tic Tac Toe Game](https://i.postimg.cc/CxdtLmbw/2.png)](https://i.postimg.cc/CxdtLmbw/2.png)
-[![Tic Tac Toe Game](https://i.postimg.cc/s2hN5xn8/3.png)](https://i.postimg.cc/s2hN5xn8/3.png)
-[![Tic Tac Toe Game](https://i.postimg.cc/fRFP3mvm/4.png)](https://i.postimg.cc/fRFP3mvm/4.png)
-[![Tic Tac Toe Game](https://i.postimg.cc/nzfw2xgL/5.png)](https://i.postimg.cc/nzfw2xgL/5.png)
-=======
-[![Tic Tac Toe Game](https://i.postimg.cc/rmx99Dsq/Screenshot-2024-12-29-020344.png)](https://postimg.cc/qhBnJM2F)
->>>>>>> 7096fdf4693cdec0759627d4f400fef035f2e88e
 
 ## 🎯 Key Features
 
@@ -155,9 +157,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Contact & Support
 - Created by [P.S. Hackerz](https://github.com/PSHACKERZ)
-- Support: [Telegram](https://t.me/PSHACKERZ)
+- Support: [Telegram](https://t.me/PS_Hacker)
 - Report Issues: [GitHub Issues](https://github.com/PSHACKERZ/tic-tac-toe/issues)
 
 ---
 <p align="center">Made with ❤️ by P.S. Hackerz</p>
-```
