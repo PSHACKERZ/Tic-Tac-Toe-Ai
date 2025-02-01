@@ -1,16 +1,29 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Tic Tac Toe",
+  "name": "Tic Tac Toe by PS Hackerz",
   "icons": [
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
     }
-   
   ],
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "background_color": "#ffffff",
+  "asset_links": {
+    "package_name": "com.pshackerz.tictactoe",
+    "sha256_cert_fingerprints": ["E4:F7:2F:88:9F:71:B2:F6:9C:88:1C:AE:B7:1F:B1:D1:59:99:3C:80:D9:53:E8:FD:05:C1:AA:E0:6E:95:D7:CF"]
+  }
 }
