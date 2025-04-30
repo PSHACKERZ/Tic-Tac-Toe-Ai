@@ -914,7 +914,7 @@ const TicTacToe = () => {
           {/* Footer with contact link */}
           <div className="mt-8 text-center">
             <a
-              href="https://t.me/PS_Hacker"
+              href="https://t.me/PS_Hackerz"
               target="_blank"
               rel="noopener noreferrer"
               className="
