@@ -18,8 +18,16 @@ import {
 } from 'lucide-react';
 import { Howl } from 'howler';
 import { supabase } from './lib/supabaseClient';
-import { Auth } from '@supabase/auth-ui-react'
-import { ThemeSupa } from '@supabase/auth-ui-shared'
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { aiMove } from './components/AILogic.js';
+import GameBoard from './components/GameBoard.js';
+import ModeSelectionView from './components/ModeSelectionView.js';
+import SymbolSelectionView from './components/SymbolSelectionView.js';
+import OnlineMenu from './components/OnlineMenu.js';
+import SettingsView from './components/SettingsView.js';
+import ChatView from './components/ChatView.js';
+import UndoButton from './components/UndoButton.js';
 
 // Add this CSS at the top of your component
 const styles = `
@@ -186,6 +194,7 @@ const TicTacToe = () => {
     lastUpdate: null
   });
   const [soundsInitialized, setSoundsInitialized] = useState(false);
+  const [history, setHistory] = useState([]);
 
   const sounds = useMemo(() => {
     if (!soundsInitialized) return {};
@@ -317,6 +326,9 @@ const TicTacToe = () => {
     }
 
     if ((gameMode === 'playing' && currentPlayer !== playerSymbol) || board[index] || winner) return;
+
+    // Store current state in history before making a new move
+    setHistory(prevHistory => [...prevHistory, { board: [...board], currentPlayer: currentPlayer, winner: winner, winningLine: winningLine }]);
 
     const boardCopy = [...board];
     boardCopy[index] = currentPlayer;
@@ -477,183 +489,6 @@ const TicTacToe = () => {
     return null;
   };
 
-  // AI Move Strategies
-  const findWinningMove = useCallback((board, symbol, oppSymbol) => {
-    for (let i = 0; i < board.length; i++) {
-      if (board[i] === null) {
-        const testBoard = [...board];
-        testBoard[i] = symbol;
-        if (calculateWinner(testBoard)?.winner === symbol) return i;
-      }
-    }
-    return null;
-  }, []);
-
-  const findBlockingMove = useCallback((board, symbol, oppSymbol) => {
-    return findWinningMove(board, oppSymbol, symbol);
-  }, [findWinningMove]);
-
-  const findRandomMove = (board) => {
-    const emptySquares = board.reduce((acc, square, index) => 
-      square === null ? [...acc, index] : acc, []);
-    return emptySquares[Math.floor(Math.random() * emptySquares.length)];
-  };
-
-  // Minimax Algorithm for Hard Difficulty
-  const minimax = useCallback((board, depth, isMaximizing, symbol) => {
-    const oppSymbol = symbol === 'X' ? 'O' : 'X';
-    const result = calculateWinner(board);
-
-    if (result) {
-      if (result.winner === symbol) return 10 - depth;
-      if (result.winner === oppSymbol) return depth - 10;
-    }
-    
-    if (board.every(square => square !== null)) return 0;
-
-    if (isMaximizing) {
-      let bestScore = -Infinity;
-      for (let i = 0; i < board.length; i++) {
-        if (board[i] === null) {
-          board[i] = symbol;
-          let score = minimax(board, depth + 1, false, symbol);
-          board[i] = null;
-          bestScore = Math.max(score, bestScore);
-        }
-      }
-      return bestScore;
-    } else {
-      let bestScore = Infinity;
-      for (let i = 0; i < board.length; i++) {
-        if (board[i] === null) {
-          board[i] = oppSymbol;
-          let score = minimax(board, depth + 1, true, symbol);
-          board[i] = null;
-          bestScore = Math.min(score, bestScore);
-        }
-      }
-      return bestScore;
-    }
-  }, []);
-
-  // AI Move Selection
-  const aiMove = useCallback((board, currentDifficulty) => {
-    playSound('click');
-
-    const emptySquares = board.reduce((acc, square, index) => 
-      square === null ? [...acc, index] : acc, []);
-
-    let move = null;
-    
-    // Ensure difficulty is valid and set
-    const validDifficulty = ['easy', 'medium', 'impossible'].includes(currentDifficulty) 
-      ? currentDifficulty 
-      : 'medium';
-
-    switch (validDifficulty) {
-      case 'easy':
-        // Easy: 90% random moves, 10% smart moves
-        if (Math.random() < 0.9) {
-          move = findRandomMove(board);
-        } else {
-          // Only block winning moves sometimes
-          if (Math.random() < 0.3) {
-            move = findBlockingMove(board, aiSymbol, playerSymbol);
-          }
-          if (move === null) {
-            move = findRandomMove(board);
-          }
-        }
-        break;
-
-      case 'medium':
-        // Medium: More balanced mix of strategies
-        if (Math.random() < 0.5) { // 50% chance of making a strategic move
-          // Try strategies in order of priority
-          const strategies = [
-            // 30% chance to find winning move
-            () => Math.random() < 0.3 ? findWinningMove(board, aiSymbol, playerSymbol) : null,
-            // 40% chance to block opponent
-            () => Math.random() < 0.4 ? findBlockingMove(board, aiSymbol, playerSymbol) : null,
-            // 60% chance to take center
-            () => Math.random() < 0.6 ? findCenterMove(board) : null,
-            // 50% chance to take corner
-            () => Math.random() < 0.5 ? findCornerMove(board) : null
-          ];
-
-          for (let strategy of strategies) {
-            move = strategy();
-            if (move !== null) break;
-          }
-        }
-        
-        // If no strategic move was made, make a random move
-        if (move === null) {
-          move = findRandomMove(board);
-        }
-        break;
-
-      case 'impossible':
-        // First move optimization for faster gameplay
-        if (emptySquares.length === 9) {
-          // First move: Take center or corner
-          return Math.random() < 0.7 ? 4 : [0, 2, 6, 8][Math.floor(Math.random() * 4)];
-        }
-        
-        // Use full minimax for perfect play
-        let bestScore = -Infinity;
-        let bestMove = null;
-
-        for (let i = 0; i < board.length; i++) {
-          if (board[i] === null) {
-            board[i] = aiSymbol;
-            let score = minimax(board, 0, false, aiSymbol);
-            board[i] = null;
-            
-            if (score > bestScore) {
-              bestScore = score;
-              bestMove = i;
-            }
-          }
-        }
-        move = bestMove;
-        break;
-
-      default:
-        // Fallback to medium difficulty
-        move = findRandomMove(board);
-        break;
-    }
-
-    if (move === null) {
-      // Fallback to random move if no move was selected
-      console.warn('No move selected, falling back to random move');
-      move = findRandomMove(board);
-    }
-
-    return move;
-  }, [
-    playSound, 
-    aiSymbol, 
-    playerSymbol, 
-    findBlockingMove, 
-    findWinningMove, 
-    minimax // Add missing dependencies
-  ]);
-
-  // Add helper functions for medium difficulty
-  const findCenterMove = (board) => {
-    return board[4] === null ? 4 : null;
-  };
-
-  const findCornerMove = (board) => {
-    const corners = [0, 2, 6, 8];
-    const availableCorners = corners.filter(i => board[i] === null);
-    return availableCorners.length > 0 ? 
-      availableCorners[Math.floor(Math.random() * availableCorners.length)] : 
-      null;
-  };
-
   // Score Update Function
   const updateScore = (result) => {
     setScore(prev => {
@@ -668,47 +503,54 @@ const TicTacToe = () => {
     });
   };
 
+  // AI Move Selection (now an effect that calls the imported aiMove)
+  const performAIMove = useCallback(() => {
+    if (gameMode === 'playing' && currentPlayer === aiSymbol && !winner) {
+      // Store current state in history before AI makes a new move
+      setHistory(prevHistory => [...prevHistory, { board: [...board], currentPlayer: currentPlayer, winner: winner, winningLine: winningLine }]);
+
+      // Pass playerSymbol to aiMove from AILogic.js
+      // The aiMove function from AILogic.js expects: board, difficulty, aiSymbol, playerSymbol, playSoundCallback
+      const move = aiMove(board, difficulty, aiSymbol, playerSymbol, playSound);
+      if (move !== null) {
+        const newBoard = [...board];
+        newBoard[move] = aiSymbol;
+        setBoard(newBoard);
+
+        if (aiSymbol === 'X') {
+          playSound('placeX');
+        } else {
+          playSound('placeO');
+        }
+
+        const gameResult = calculateWinner(newBoard); 
+        if (gameResult) {
+          setWinner(gameResult.winner); 
+          setWinningLine(gameResult.line);
+          updateScore(gameResult.winner);
+          if (gameResult.winner === aiSymbol) {
+            playSound('lose');
+          }
+        } else if (newBoard.every(square => square !== null)) {
+          setWinner('draw');
+          updateScore('draw');
+        } else {
+          setCurrentPlayer(playerSymbol);
+        }
+      }
+    }
+  }, [board, currentPlayer, difficulty, aiSymbol, playerSymbol, winner, playSound, updateScore]);
+
+
   // AI Move Effect
   useEffect(() => {
-    if (gameMode === 'playing' && currentPlayer !== playerSymbol && !winner) {
+    if (gameMode === 'playing' && currentPlayer === aiSymbol && !winner) {
       const timer = setTimeout(() => {
-        const move = aiMove(board, difficulty);
-        if (move !== null) {
-          const newBoard = [...board];
-          newBoard[move] = aiSymbol;
-          setBoard(newBoard);
-          
-          if (aiSymbol === 'X') {
-            playSound('placeX');
-          } else {
-            playSound('placeO');
-          }
-
-          const result = calculateWinner(newBoard);
-          if (result) {
-            setWinner(aiSymbol);
-            playSound('lose');
-          } else if (newBoard.every(square => square !== null)) {
-            setWinner('draw');
-          } else {
-            setCurrentPlayer(playerSymbol);
-          }
-        }
+        performAIMove();
       }, 500);
-
       return () => clearTimeout(timer);
     }
-  }, [
-    gameMode, 
-    currentPlayer, 
-    playerSymbol, 
-    winner, 
-    board, 
-    difficulty, 
-    aiSymbol, 
-    aiMove, 
-    playSound
-  ]);
+  }, [gameMode, currentPlayer, aiSymbol, winner, performAIMove]); // Added performAIMove to dependency array
 
   // Game Reset Function
   const resetGame = () => {
@@ -716,6 +558,7 @@ const TicTacToe = () => {
     setCurrentPlayer('X');
     setWinner(null);
     setWinningLine(null);
+    setHistory([]); // Clear history on reset
   };
 
   // Update the handleResetClick function
@@ -742,299 +585,12 @@ const TicTacToe = () => {
     }
   };
 
-  // Render Square Function
-  const renderSquare = (i, isOnline = false) => {
-    const isWinningSquare = winner && winningLine && winningLine.includes(i);
-    const isDrawSquare = winner === 'draw';
-  
-    const handleSquareClick = () => {
-      if (isOnline) {
-        handleOnlineMove(i);
-      } else {
-        handleClick(i);
-      }
-    };
-  
-    return (
-      <button 
-        key={i}
-        className={`
-          w-full aspect-square 
-          border-4 
-          rounded-xl
-          flex items-center justify-center 
-          text-4xl font-bold
-          transition-all duration-300
-          ${!isMobile && 'hover:scale-105'}
-          ${board[i] === 'X' ? 'border-blue-600 text-blue-500' : 
-            board[i] === 'O' ? 'border-red-600 text-red-500' : 
-            'border-green-400 hover:border-purple-500'}
-          ${winner && winner !== null ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-          ${isWinningSquare ? 'bg-green-100 animate-blink-3x' : ''}
-          ${isDrawSquare ? 'animate-blink-3x' : ''}
-          ${isMobile ? 'active:scale-95' : ''}
-          outline-none
-          focus:ring-2 focus:ring-purple-500
-          touch-manipulation
-        `}
-        onClick={handleMobileClick(handleInteraction(handleSquareClick))}
-        disabled={winner !== null || (isOnline && currentPlayer !== playerSymbol)}
-        style={{ WebkitTapHighlightColor: 'transparent' }}
-      >
-        {board[i] === 'X' ? <X className="w-2/3 h-2/3" strokeWidth={3} /> : board[i] === 'O' ? <Circle className="w-2/3 h-2/3" strokeWidth={3} /> : null}
-      </button>
-    );
-  };
-
-  // Mode Selection Render
-  const renderModeSelection = () => {
-    return (
-      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${themes[theme].menuBg} p-4`}>
-        <div className={`${themes[theme].cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 text-center w-full max-w-md`}>
-          <h1 className={`
-            text-4xl sm:text-5xl font-bold mb-8 
-            ${theme === 'dark' ? 'text-white' : 'text-gray-800'}
-          `}>
-            Tic Tac Toe
-          </h1>
-
-          {/* Game Tag Display */}
-          {session?.user && (
-            <div className="mb-6 p-3 bg-gray-50 rounded-lg flex justify-between items-center">
-              <div>
-                <p className="text-sm text-gray-500">Game Tag:</p>
-                <p className="text-gray-700 font-medium">
-                  {gameTag || 'Not set'}
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  playSound('click');
-                  setShowGameTagModal(true);
-                }}
-                className="
-                  px-4 py-2
-                  bg-gradient-to-r from-green-500 to-green-600
-                  text-white rounded-lg 
-                  hover:from-green-600 hover:to-green-700 
-                  transition-colors
-                  text-sm font-medium
-                "
-              >
-                {gameTag ? 'Change Tag' : 'Set Tag'}
-              </button>
-            </div>
-          )}
-
-          {/* Game Mode Buttons */}
-          <div className="flex flex-col space-y-4">
-            <button
-              onClick={handleInteraction(() => {
-                playSound('click');
-                setGameMode('pvp');
-              })}
-              className={`
-                bg-gradient-to-r from-blue-500 to-blue-600
-                text-white px-6 py-4 rounded-xl 
-                text-lg font-bold
-                ${!isMobile && 'hover:from-blue-600 hover:to-blue-700 transition-all'}
-                flex items-center justify-center
-                shadow-xl hover:shadow-2xl
-                group
-              `}
-            >
-              <Users className="w-6 h-6 mr-3" />
-              Local Multiplayer
-            </button>
-
-            <button
-              onClick={handleInteraction(() => {
-                playSound('click');
-                setGameMode('symbol-select');
-              })}
-              className={`
-                bg-gradient-to-r from-purple-500 to-purple-600
-                text-white px-6 py-4 rounded-xl 
-                text-lg font-bold
-                ${!isMobile && 'hover:from-purple-600 hover:to-purple-700 transition-all'}
-                flex items-center justify-center
-                shadow-xl hover:shadow-2xl
-                group
-              `}
-            >
-              <Bot className="w-6 h-6 mr-3" />
-              Play vs AI
-            </button>
-
-            <button
-              onClick={handleInteraction(() => {
-                playSound('click');
-                if (!session) {
-                  setShowAuth(true);
-                } else {
-                  setGameMode('online-menu');
-                }
-              })}
-              className={`
-                bg-gradient-to-r from-green-500 to-green-600
-                text-white px-6 py-4 rounded-xl 
-                text-lg font-bold
-                ${!isMobile && 'hover:from-green-600 hover:to-green-700 transition-all'}
-                flex items-center justify-center
-                shadow-xl hover:shadow-2xl
-                group
-              `}
-            >
-              <Globe className="w-6 h-6 mr-3" />
-              Play Online
-            </button>
-          </div>
-
-          {/* Settings Button */}
-          <button
-            onClick={handleInteraction(() => {
-              playSound('click');
-              setShowSettings(true);
-            })}
-            className={`
-              mt-8 w-full
-              bg-gradient-to-r from-gray-500 to-gray-600
-              text-white px-6 py-4 rounded-xl 
-              text-lg font-bold
-              ${!isMobile && 'hover:from-gray-600 hover:to-gray-700 transition-all'}
-              flex items-center justify-center
-              shadow-xl hover:shadow-2xl
-              group
-            `}
-          >
-            <Settings className="w-6 h-6 mr-3" />
-            Settings
-          </button>
-
-          {/* Footer with contact link */}
-          <div className="mt-8 text-center">
-            <a
-              href="https://t.me/PS_Hackerz"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="
-                inline-block
-                text-xs
-                text-blue-700
-                px-2 py-1
-                bg-gray-50 
-                rounded-md
-                transition-colors 
-                duration-300
-                hover:text-red-700
-                hover:bg-gray-200
-                focus:outline-none
-                focus:ring-2
-                focus:ring-offset-2
-                focus:ring-blue-700
-              "
-              title="Contact P.S. Hackerz via Telegram"
-              aria-label="Contact P.S. Hackerz via Telegram"
-            >
-              Made By @ P.S. Hackerz (Contact us)
-            </a>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Symbol Selection Render
-  const renderSymbolSelection = () => {
-    return (
-      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${themes[theme].menuBg} p-4`}>
-        <div className={`${themes[theme].cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 text-center w-full max-w-md`}>
-          <h2 className="text-3xl sm:text-5xl font-extrabold mb-6 sm:mb-10 text-gray-800 flex items-center justify-center">
-            <Award className="mr-2 sm:mr-4 text-green-600 animate-pulse w-10 h-10 sm:w-14 sm:h-14" />
-            Choose Your Symbol
-          </h2>
-          <div className="flex justify-center space-x-4 sm:space-x-8 mb-6 sm:mb-8">
-            <button 
-              onClick={() => {
-                playSound('click');
-                setPlayerSymbol('X');
-                setAiSymbol('O');
-                setGameMode('playing');
-                setCurrentPlayer('X');
-              }}
-              className={`
-                flex flex-col items-center 
-                bg-gradient-to-r from-blue-500 to-blue-600 text-white 
-                px-4 py-6 sm:px-10 sm:py-8 rounded-2xl 
-                hover:from-blue-600 hover:to-blue-700
-                transition-all
-                shadow-xl hover:shadow-2xl
-                group
-                w-full max-w-[150px]
-              `}
-            >
-              <X className="w-12 h-12 sm:w-20 sm:h-20 group-hover:animate-spin" strokeWidth={3} />
-              <span className="mt-2 sm:mt-4 text-base sm:text-xl font-bold">Play as X</span>
-            </button>
-            <button 
-              onClick={() => {
-                playSound('click');
-                setPlayerSymbol('O');
-                setAiSymbol('X');
-                setGameMode('playing');
-                setCurrentPlayer('X');
-              }}
-              className={`
-                flex flex-col items-center 
-                bg-gradient-to-r from-red-500 to-red-600 text-white 
-                px-4 py-6 sm:px-10 sm:py-8 rounded-2xl 
-                hover:from-red-600 hover:to-red-700
-                transition-all
-                shadow-xl hover:shadow-2xl
-                group
-                w-full max-w-[150px]
-              `}
-            >
-              <Circle className="w-12 h-12 sm:w-20 sm:h-20 group-hover:animate-pulse" strokeWidth={3} />
-              <span className="mt-2 sm:mt-4 text-base sm:text-xl font-bold">Play as O</span>
-            </button>
-          </div>
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mt-6 sm:mt-8">
-            <label className="text-base sm:text-xl font-semibold text-gray-700 flex items-center">
-              <Trophy className="mr-2 sm:mr-3 w-6 h-6 sm:w-8 sm:h-8 text-yellow-600" />
-              AI Difficulty:
-            </label>
-            <select 
-              value={difficulty}
-              onChange={(e) => {
-                const newDifficulty = e.target.value;
-                if (['easy', 'medium', 'impossible'].includes(newDifficulty)) {
-                  setDifficulty(newDifficulty);
-                } else {
-                  console.warn(`Invalid difficulty selected: ${newDifficulty}`);
-                  setDifficulty('medium');
-                }
-              }}
-              className="
-                px-4 py-2 sm:px-6 sm:py-3 
-                border-4 border-green-300 
-                rounded-xl 
-                text-base sm:text-lg
-                focus:outline-none 
-                focus:ring-4 
-                focus:ring-green-500
-                transition-all
-                w-full max-w-[200px]
-              "
-            >
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="impossible">Impossible</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    );
+  // Callback for SymbolSelectionView
+  const handleSymbolSelection = (selectedPlayerSymbol, selectedAiSymbol) => {
+    setPlayerSymbol(selectedPlayerSymbol);
+    setAiSymbol(selectedAiSymbol);
+    setGameMode('playing');
+    setCurrentPlayer('X'); // Player X always starts
   };
 
   // Game Board Render
@@ -1086,11 +642,10 @@ const TicTacToe = () => {
                 rounded-full text-sm font-medium
                 ${difficulty === 'easy' ? 'bg-green-100 text-green-800' :
                   difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                  difficulty === 'hard' ? 'bg-orange-100 text-orange-800' : // Added style for Hard
                   'bg-red-100 text-red-800'}
               `}>
-                {difficulty === 'easy' ? 'Easy' :
-                 difficulty === 'medium' ? 'Medium' :
-                 'Impossible'} Mode
+                {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} Mode
               </span>
             </div>
           )}
@@ -1138,71 +693,29 @@ const TicTacToe = () => {
           </div>
 
           {/* Game board */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
-            {[0, 1, 2, 3, 4, 5, 6, 7, 8].map(i => renderSquare(i, gameMode === 'online'))}
-          </div>
+          <GameBoard
+            board={board}
+            winner={winner}
+            winningLine={winningLine}
+            currentPlayer={currentPlayer}
+            playerSymbol={playerSymbol}
+            onSquareClick={gameMode === 'online' ? handleOnlineMove : handleClick}
+            isMobile={isMobile}
+            gameMode={gameMode}
+          />
 
           {/* Game Controls */}
           {gameMode === 'online' ? (
             // Online mode controls
             <>
-              {/* Chat System */}
-              <div className="mt-4">
-                <div className="bg-white rounded-lg shadow-inner p-4 h-48 overflow-y-auto mb-4">
-                  <div className="flex flex-col space-y-2 mb-4">
-                    {messages.map((msg, index) => (
-                      <div
-                        key={index}
-                        className={`
-                          flex flex-col
-                          ${msg.player_symbol === playerSymbol ? 'items-end' : 'items-start'}
-                        `}
-                      >
-                        <div className={`
-                          px-3 py-2 rounded-lg max-w-[80%]
-                          ${msg.player_symbol === playerSymbol ? 
-                            'bg-blue-500 text-white' : 
-                            'bg-gray-200 text-gray-800'
-                          }
-                        `}>
-                          <p className={`
-                            text-xs mb-1 font-medium
-                            ${msg.player_symbol === playerSymbol ? 
-                              'text-blue-100' : 
-                              'text-gray-600'
-                            }
-                          `}>
-                            {msg.game_tag || 'Anonymous'}
-                          </p>
-                          <p>{msg.message}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                    placeholder="Type a message..."
-                    className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <button
-                    onClick={sendMessage}
-                    disabled={!newMessage.trim()}
-                    className="
-                      px-4 py-2 bg-blue-500 text-white rounded-lg
-                      hover:bg-blue-600 transition-colors
-                      disabled:bg-gray-300
-                    "
-                  >
-                    Send
-                  </button>
-                </div>
-              </div>
-
+              <ChatView
+                messages={messages}
+                newMessage={newMessage}
+                onNewMessageChange={setNewMessage}
+                onSendMessage={sendMessage}
+                playerSymbol={playerSymbol}
+                gameTag={gameTag} 
+              />
               {/* New Game Button - Show only when game has ended */}
               {winner && (
                 <div className="mt-4 flex justify-center">
@@ -1236,10 +749,12 @@ const TicTacToe = () => {
               >
                 <RefreshCw className={`mr-1 sm:mr-2 w-4 h-4 sm:w-6 sm:h-6 ${!isMobile && 'group-hover:animate-spin'}`} /> Reset
               </button>
+              <UndoButton onClick={handleUndo} disabled={history.length === 0 || !!winner || gameMode === 'online'} />
               <button 
                 onClick={() => {
                   playSound('click');
                   setGameMode('mode-select');
+                  setHistory([]); // Clear history when changing mode
                 }}
                 className={`
                   flex items-center bg-violet-500 text-white 
@@ -1323,148 +838,6 @@ const TicTacToe = () => {
     };
   }, [sounds, soundsInitialized]);
   
-  const renderOnlineMenu = () => {
-    return (
-      <div className={`flex flex-col items-center justify-center min-h-screen bg-gradient-to-br ${themes[theme].menuBg} p-4`}>
-        <div className={`${themes[theme].cardBg} shadow-2xl rounded-3xl p-6 sm:p-12 text-center w-full max-w-md`}>
-          {/* Header Section */}
-          <div className="mb-8">
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text flex items-center justify-center gap-3">
-              <Globe className="w-10 h-10 text-indigo-500 animate-spin-slow" />
-              Online Play
-            </h2>
-            {session?.user && (
-              <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-inner">
-                <p className="text-sm text-gray-500">Logged in as:</p>
-                <p className="text-gray-700 font-medium truncate" title={session.user.email}>
-                  {session.user.email}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Create Room Section */}
-          <div className="mb-8">
-            <button 
-              onClick={() => {
-                playSound('click');
-                createGameRoom();
-              }}
-              className="
-                w-full
-                bg-gradient-to-r from-violet-500 to-purple-600 
-                text-white px-6 py-4 rounded-xl 
-                text-xl font-bold
-                hover:from-violet-600 hover:to-purple-700 
-                transition-all duration-300
-                transform hover:scale-105
-                flex items-center justify-center
-                shadow-xl hover:shadow-2xl
-                group
-              "
-            >
-              <Trophy className="w-8 h-8 mr-3 group-hover:animate-bounce" />
-              Create New Room
-            </button>
-          </div>
-
-          {/* Join Room Section */}
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-2xl shadow-inner mb-8">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Join Existing Room</h3>
-            <div className="relative mb-4">
-              <input
-                type="text"
-                value={roomCode}
-                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-                placeholder="Enter Room Code"
-                className="
-                  w-full px-4 py-3
-                  border-2 border-gray-300 
-                  rounded-xl text-lg
-                  focus:outline-none 
-                  focus:border-blue-500
-                  transition-colors
-                  bg-white
-                  placeholder-gray-400
-                "
-                maxLength={6}
-              />
-              {roomCode && (
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(roomCode);
-                    playSound('click');
-                  }}
-                  className="
-                    absolute right-3 top-1/2 -translate-y-1/2
-                    text-gray-500 hover:text-blue-600
-                    transition-colors
-                    p-2 hover:bg-blue-50 rounded-lg
-                  "
-                  title="Copy Room Code"
-                >
-                  <Copy className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-            <button 
-              onClick={() => {
-                playSound('click');
-                joinGameRoom(roomCode);
-              }}
-              disabled={!roomCode}
-              className={`
-                w-full
-                bg-gradient-to-r from-blue-500 to-indigo-600
-                text-white px-6 py-4 rounded-xl 
-                text-xl font-bold
-                transition-all duration-300
-                flex items-center justify-center
-                shadow-xl hover:shadow-2xl
-                transform hover:scale-105
-                group
-                ${!roomCode ? 'opacity-50 cursor-not-allowed' : 'hover:from-blue-600 hover:to-indigo-700'}
-              `}
-            >
-              <Users className="w-8 h-8 mr-3 group-hover:animate-pulse" />
-              Join Room
-            </button>
-          </div>
-
-          {/* Error Message */}
-          {errorMessage && (
-            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
-              <p className="text-red-600 font-medium">{errorMessage}</p>
-            </div>
-          )}
-
-          {/* Back Button */}
-          <button 
-            onClick={() => {
-              playSound('click');
-              leaveOnlineGame();
-            }}
-            className="
-              w-full
-              bg-gradient-to-r from-gray-500 to-gray-600
-              text-white px-4 py-3 rounded-xl 
-              text-lg font-bold
-              hover:from-gray-600 hover:to-gray-700 
-              transition-all duration-300
-              flex items-center justify-center
-              shadow-lg hover:shadow-xl
-              transform hover:scale-105
-              group
-            "
-          >
-            <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-            Back to Menu
-          </button>
-        </div>
-      </div>
-    );
-  };
-
   // Add function to subscribe to chat messages
   const subscribeToMessages = useCallback((roomCode) => {
     try {
@@ -1858,6 +1231,7 @@ const TicTacToe = () => {
       setGameStatus('waiting');
       setScore({ playerX: 0, playerO: 0, draws: 0 });
       setHasGameStarted(false);
+      setHistory([]); // Clear history when leaving online game
       
       Object.values(sounds).forEach(sound => {
         sound.stop();
@@ -1871,165 +1245,14 @@ const TicTacToe = () => {
     }
   }, [playSound, playerSymbol, roomCode, sounds]);
 
-  // Add Settings Menu component
-  const renderSettings = () => {
-    const isDarkTheme = theme === 'dark';
-    
-    return (
-      <div className="fixed inset-0 bg-gradient-to-br ${themes[theme].bgGradient} flex items-center justify-center p-4">
-        {showGameTagModal && renderGameTagModal()}
-        
-        <div className={`${themes[theme].cardBg} rounded-xl shadow-2xl p-6 max-w-md w-full`}>
-          <h2 className={`text-2xl font-bold mb-6 ${isDarkTheme ? 'text-white' : 'text-gray-800'}`}>Settings</h2>
+  // Callbacks for SettingsView
+  const handleToggleBgMusic = (newIsBgMusicOn) => {
+    setIsBgMusicOn(newIsBgMusicOn);
+    // The useEffect for background music in TicTacToe.js will handle starting/stopping.
+  };
 
-          {/* User Profile Section */}
-          {session?.user && (
-            <div className={`mb-6 p-4 ${isDarkTheme ? 'bg-gray-700' : 'bg-gray-50'} rounded-lg`}>
-              <div className="flex justify-between items-center mb-2">
-                <p className={`text-sm ${isDarkTheme ? 'text-gray-300' : 'text-gray-500'}`}>Logged in as:</p>
-                <button
-                  onClick={() => {
-                    playSound('click');
-                    signOut();
-                  }}
-                  className="
-                    px-4 py-2
-                    bg-gradient-to-r from-red-500 to-red-600
-                    text-white rounded-lg 
-                    hover:from-red-600 hover:to-red-700 
-                    transition-colors
-                    text-sm font-medium
-                  "
-                >
-                  Sign Out
-                </button>
-              </div>
-              <p className={`${isDarkTheme ? 'text-gray-200' : 'text-gray-700'} font-medium truncate mb-4`} 
-                 title={session.user.email}>
-                {session.user.email}
-              </p>
-              
-              {/* Game Tag section */}
-              <div className="pt-3 border-t border-gray-600 flex justify-between items-center">
-                <div>
-                  <p className={`text-sm ${isDarkTheme ? 'text-gray-300' : 'text-gray-500'}`}>Game Tag:</p>
-                  <p className={`${isDarkTheme ? 'text-gray-200' : 'text-gray-700'} font-medium`}>
-                    {gameTag || 'Not set'}
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    playSound('click');
-                    setShowGameTagModal(true);
-                  }}
-                  className="
-                    px-4 py-2
-                    bg-gradient-to-r from-green-500 to-green-600
-                    text-white rounded-lg 
-                    hover:from-green-600 hover:to-green-700 
-                    transition-colors
-                    text-sm font-medium
-                  "
-                >
-                  {gameTag ? 'Change Tag' : 'Set Tag'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Sound Settings */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className={`text-lg ${isDarkTheme ? 'text-gray-200' : 'text-gray-800'}`}>Background Music</span>
-              <button 
-                onClick={() => {
-                  playSound('click');
-                  setIsBgMusicOn(prev => !prev);
-                  // If turning music on, play appropriate background music
-                  if (!isBgMusicOn) {
-                    if (gameMode === 'playing' || gameMode === 'pvp') {
-                      sounds.gameBg.play();
-                    } else {
-                      sounds.menuBg.play();
-                    }
-                  }
-                }}
-                className={`
-                  flex items-center justify-center
-                  px-4 py-2 rounded-lg
-                  ${isBgMusicOn ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}
-                  text-white transition-colors
-                `}
-              >
-                <Music className={`w-5 h-5 mr-2 ${!isBgMusicOn && 'opacity-50'}`} />
-                {isBgMusicOn ? 'On' : 'Off'}
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className={`text-lg ${isDarkTheme ? 'text-gray-200' : 'text-gray-800'}`}>Sound Effects</span>
-              <button 
-                onClick={() => {
-                  if (isSoundEffectsOn) playSound('click');
-                  setSoundEffectsOn(!isSoundEffectsOn);
-                }}
-                className={`
-                  flex items-center justify-center
-                  px-4 py-2 rounded-lg
-                  ${isSoundEffectsOn ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}
-                  text-white transition-colors
-                `}
-              >
-                <Volume2 className={`w-5 h-5 mr-2 ${!isSoundEffectsOn && 'opacity-50'}`} />
-                {isSoundEffectsOn ? 'On' : 'Off'}
-              </button>
-            </div>
-          </div>
-
-          {/* Theme Settings */}
-          <div className="flex items-center justify-between mt-4">
-            <span className={`text-lg ${isDarkTheme ? 'text-gray-200' : 'text-gray-800'}`}>Theme</span>
-            <button 
-              onClick={() => {
-                playSound('click');
-                cycleTheme();
-              }}
-              className={`
-                flex items-center justify-center
-                px-4 py-2 rounded-lg
-                bg-gradient-to-r from-purple-500 to-indigo-500 
-                hover:from-purple-600 hover:to-indigo-600
-                text-white transition-colors
-              `}
-            >
-              <Palette className="w-5 h-5 mr-2" />
-              {theme.charAt(0).toUpperCase() + theme.slice(1)}
-            </button>
-          </div>
-
-          {/* Back Button */}
-          <button 
-            onClick={() => {
-              playSound('click');
-              setShowSettings(false);
-            }}
-            className={`
-              w-full mt-6
-              bg-gradient-to-r from-slate-500 to-slate-600
-              text-white px-4 py-3 rounded-xl 
-              text-lg font-bold
-              ${!isMobile && 'hover:from-slate-600 hover:to-slate-700 transition-all'}
-              flex items-center justify-center
-              shadow-xl hover:shadow-2xl
-              group
-            `}
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            Back to Menu
-          </button>
-        </div>
-      </div>
-    );
+  const handleToggleSoundEffects = (newIsSoundEffectsOn) => {
+    setSoundEffectsOn(newIsSoundEffectsOn);
   };
 
   // Add the Auth UI modal component
@@ -2170,6 +1393,7 @@ const TicTacToe = () => {
       setGameStatus('waiting');
       setScore({ playerX: 0, playerO: 0, draws: 0 });
       setHasGameStarted(false);
+      setHistory([]); // Clear history
       
       Object.values(sounds).forEach(sound => {
         sound.stop();
@@ -2221,10 +1445,31 @@ const TicTacToe = () => {
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
-      leaveOnlineGame();
+      // leaveOnlineGame also calls cleanupGame which clears history.
+      // If not in an online game, ensure history is cleared.
+      if (gameMode !== 'online') {
+        setHistory([]);
+      }
+      leaveOnlineGame(); 
     } catch (error) {
       console.error('Error signing out:', error);
     }
+  };
+
+  const handleUndo = () => {
+    if (history.length === 0 || winner) {
+      // Cannot undo if history is empty or game is over
+      if (winner) playSound('click'); // Play a sound to indicate action but no change
+      return;
+    }
+
+    const lastState = history[history.length - 1];
+    setBoard(lastState.board);
+    setCurrentPlayer(lastState.currentPlayer);
+    setWinner(lastState.winner);
+    setWinningLine(lastState.winningLine);
+    setHistory(prevHistory => prevHistory.slice(0, -1));
+    playSound('click'); // Sound for successful undo
   };
 
   // Add the confirmation dialog component
@@ -2575,13 +1820,57 @@ const TicTacToe = () => {
   // Main Component Return
   return (
     <div>
-      {showSettings ? renderSettings() : (
+      {showSettings ? (
+        <SettingsView
+          themes={themes}
+          theme={theme}
+          onCycleTheme={cycleTheme}
+          session={session}
+          gameTag={gameTag}
+          onShowGameTagModal={setShowGameTagModal}
+          onSignOut={signOut}
+          isBgMusicOn={isBgMusicOn}
+          onToggleBgMusic={handleToggleBgMusic}
+          isSoundEffectsOn={isSoundEffectsOn}
+          onToggleSoundEffects={handleToggleSoundEffects}
+          onClose={() => setShowSettings(false)}
+          playSound={playSound}
+          sounds={sounds} // Pass Howl instances
+        />
+      ) : (
         <>
           {showAuth && renderAuthModal()}
           {showLeaveConfirmation && renderLeaveConfirmation()}
           {showGameTagModal && renderGameTagModal()}
-          {gameMode === 'mode-select' && renderModeSelection()}
-          {gameMode === 'online-menu' && renderOnlineMenu()}
+          {gameMode === 'mode-select' && (
+            <ModeSelectionView
+              themes={themes}
+              theme={theme}
+              session={session}
+              gameTag={gameTag}
+              onSetGameMode={setGameMode}
+              onShowAuth={setShowAuth}
+              onShowSettings={setShowSettings}
+              onShowGameTagModal={setShowGameTagModal}
+              playSound={playSound}
+              isMobile={isMobile}
+              handleInteraction={handleInteraction}
+            />
+          )}
+          {gameMode === 'online-menu' && (
+            <OnlineMenu
+              themes={themes}
+              theme={theme}
+              session={session}
+              roomCode={roomCode}
+              onRoomCodeChange={setRoomCode}
+              onCreateRoom={createGameRoom}
+              onJoinRoom={joinGameRoom}
+              onLeaveOnlineGame={leaveOnlineGame}
+              errorMessage={errorMessage}
+              playSound={playSound}
+            />
+          )}
           {gameMode === 'online' && (
             <div>
               {/* Display room code and waiting message if waiting for player */}
@@ -2613,7 +1902,16 @@ const TicTacToe = () => {
             </div>
           )}
           {gameMode === 'pvp' && renderGameBoard()}
-          {gameMode === 'symbol-select' && renderSymbolSelection()}
+          {gameMode === 'symbol-select' && (
+            <SymbolSelectionView
+              themes={themes}
+              theme={theme}
+              difficulty={difficulty}
+              onDifficultyChange={setDifficulty}
+              onSymbolSelect={handleSymbolSelection}
+              playSound={playSound}
+            />
+          )}
           {gameMode === 'playing' && renderGameBoard()}
           {hasGameStarted && showDisconnectMessage && gameMode === 'online' && (
             <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-100 p-4 rounded-xl shadow-lg z-10">
