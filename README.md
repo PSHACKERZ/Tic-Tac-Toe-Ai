@@ -157,7 +157,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Contact & Support
 - Created by [P.S. Hackerz](https://github.com/PSHACKERZ)
-- Support: [Telegram](https://t.me/PS_Hacker)
+- Support: [Telegram](https://t.me/pshackerzofficial)
 - Report Issues: [GitHub Issues](https://github.com/PSHACKERZ/tic-tac-toe/issues)
 
 ---
